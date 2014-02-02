@@ -1,9 +1,11 @@
 cocos2dx-components
 ===================
 
-On MIT license
+On <b>MIT<b> license
 
 Components for cocos2dx
+
+<b><h1>Hierarchy graph<b>
 
 ![alt tag](https://raw.github.com/gelldur/cocos2dx-components/master/Diagram.jpg)
 
