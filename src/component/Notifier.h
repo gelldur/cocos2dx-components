@@ -47,8 +47,6 @@ public:
 	Notification& operator= ( Notification && ) = delete;
 	Notification ( Notification&& ) = delete;
 
-
-
 	const int tag;
 	const size_t hash;
 };
@@ -59,13 +57,14 @@ public:
 	Notifier() {}
 	virtual ~Notifier()
 	{
-		for ( auto&& localVector : m_callbacks )
+		for ( auto && localVector : m_callbacks )
 		{
-			for ( auto&& element : localVector )
+			for ( auto && element : localVector )
 			{
 				free ( element.pCallback );
 			}
 		}
+
 		m_callbacks.clear();
 
 		for ( const Element& element : m_changesStack )
@@ -96,7 +95,8 @@ public:
 		CCAssert ( callback.isCallable(), "Callback isn't set" );
 		CCAssert ( callback.getObject(), "Notifier is't ready for lambdas" );
 
-		const size_t hashForSpecialization = typeid ( CallbackType ).hash_code();assert(notification.hash == hashForSpecialization);
+		const size_t hashForSpecialization = typeid ( CallbackType ).hash_code();
+		assert ( notification.hash == hashForSpecialization );
 
 		Element element;
 		element.hash = hashForSpecialization;
@@ -176,7 +176,7 @@ private:
 	// Element.pIdentyfier is to remove
 	deque<Element> m_changesStack;
 	/**
-	 * unique id - index in m_callback
+	 * unique id - index in m_callbacks
 	 */
 	map<size_t, int> m_indexMap;
 	vector< vector < Element > > m_callbacks;
@@ -231,6 +231,7 @@ private:
 				if ( pObject == element.pIdentyfier )
 				{
 					free ( element.pCallback );
+					element.pCallback = nullptr;
 					//order isn't important
 					std::swap ( localVector[i], localVector.back() );
 					localVector.pop_back();

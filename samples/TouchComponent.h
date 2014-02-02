@@ -28,13 +28,13 @@ public:
 	 * Initialize your component
 	 * @param manager manager that is owner of this Component
 	 */
-	virtual void initComponent ( ComponentManager& manager )override;
+	virtual void initComponent ( ComponentManager& manager ) override;
 
-	virtual bool ccTouchBegan ( CCTouch* pTouch, CCEvent* pEvent )override;
+	virtual bool ccTouchBegan ( CCTouch* pTouch, CCEvent* pEvent ) override;
 
-	virtual void ccTouchMoved ( CCTouch* pTouch, CCEvent* pEvent )override;
-	virtual void ccTouchEnded ( CCTouch* pTouch, CCEvent* pEvent )override;
-	virtual void ccTouchCancelled ( CCTouch* pTouch, CCEvent* pEvent )override;
+	virtual void ccTouchMoved ( CCTouch* pTouch, CCEvent* pEvent ) override;
+	virtual void ccTouchEnded ( CCTouch* pTouch, CCEvent* pEvent ) override;
+	virtual void ccTouchCancelled ( CCTouch* pTouch, CCEvent* pEvent ) override;
 
 private:
 	void onEnter();

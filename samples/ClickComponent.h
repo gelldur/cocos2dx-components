@@ -43,7 +43,7 @@ public:
 	 * Initialize your component
 	 * @param manager manager that is owner of this Component
 	 */
-	virtual void initComponent ( ComponentManager& manager )override;
+	virtual void initComponent ( ComponentManager& manager ) override;
 
 	/**
 	 * Callback for onEnter
@@ -55,7 +55,7 @@ public:
 	 */
 	void onExit();
 
-	void onTouchBegan ( CCTouch* pTouch, bool* pReturnValue);
+	void onTouchBegan ( CCTouch* pTouch, bool* pReturnValue );
 	void onTouchEnded ( CCTouch* pTouch );
 
 	/**

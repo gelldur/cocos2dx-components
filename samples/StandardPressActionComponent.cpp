@@ -25,10 +25,10 @@ void StandardPressActionComponent::initComponent ( ComponentManager& manager )
 	//Those notifications will send ClickComponent but we don't know any thing about it because
 	//whole notifications are stored in Notifications.h
 	Notifier& notifier = manager.getNodeNotifier();
-	notifier.addNotification(getNotificationOnPress(),
-			Utils::makeCallback(this,&StandardPressActionComponent::onPress));
-	notifier.addNotification(getNotificationOnUnPress(),
-			Utils::makeCallback(this,&StandardPressActionComponent::onUnPress));
+	notifier.addNotification ( getNotificationOnPress(),
+							   Utils::makeCallback ( this, &StandardPressActionComponent::onPress ) );
+	notifier.addNotification ( getNotificationOnUnPress(),
+							   Utils::makeCallback ( this, &StandardPressActionComponent::onUnPress ) );
 }
 
 void StandardPressActionComponent::onPress ( )
