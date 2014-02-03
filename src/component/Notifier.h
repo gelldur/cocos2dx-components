@@ -22,13 +22,14 @@ using namespace std;
 #include "utils/Callback.h"
 
 #define MAKE_NOTIFICATION( NAME, args... ) inline const KoalaComponent::Notification<args>& getNotification##NAME(){static const KoalaComponent::Notification<args> variable; return variable;}
+#define UNUSED_TAG 0
 
 namespace KoalaComponent
 {
 
 inline int getUniqueId()
 {
-	static int id = 1;
+	static int id = UNUSED_TAG + 1;
 	return ++id;
 }
 
@@ -122,6 +123,7 @@ public:
 		const size_t hashForSpecialization = typeid ( CallbackType ).hash_code();
 
 		applyChanges();
+		//TODO optimize for update and visit like methods
 
 		auto iterator = m_indexMap.find ( notification.tag );
 
@@ -156,13 +158,44 @@ public:
 		m_changesStack.emplace_front ( element );
 	}
 
+	template<typename... Args>
+	void removeNotification ( CCObject* pObject,
+							  const Notification<Args...>& notification )
+	{
+		Element element;
+		element.pIdentyfier = pObject;
+		element.tag = notification.tag;
+
+		m_changesStack.emplace_front ( element );
+	}
+
+	/**
+	 * For tests only
+	 * @param tag of the notification
+	 * @return count of listeners
+	 */
+	size_t getListenersCount(size_t tag)
+	{
+		auto iterator = m_indexMap.find ( tag );
+
+		if ( iterator == m_indexMap.end() )
+		{
+			return 0;
+		}
+
+		const int index = iterator->second;
+		assert ( index >= 0 );
+		assert ( index < (int)m_callbacks.size() );
+		return m_callbacks[index].size();
+	}
+
 private:
 
 	struct Element
 	{
 		Element() :
 			hash ( 0 )
-			, tag ( 0 )
+			, tag ( UNUSED_TAG )
 			, pCallback ( nullptr )
 			, pIdentyfier ( nullptr )
 		{}
@@ -172,8 +205,11 @@ private:
 		CCObject* pIdentyfier;
 	};
 
-	//If Element.pCallback == nullptr that mean
-	// Element.pIdentyfier is to remove
+	/**
+	 * If Element::pCallback is nullptr it means that this is remove command :)
+	 * If tag != UNUSED_TAG it means that we want remove elements only for such tag
+	 * Else we remove all elements for Element::pIdentyfier
+	 */
 	deque<Element> m_changesStack;
 	/**
 	 * unique id - index in m_callbacks
@@ -196,7 +232,15 @@ private:
 			if ( elementChanges.pCallback == nullptr )
 			{
 				assert ( elementChanges.pIdentyfier );
-				removeForObject ( elementChanges.pIdentyfier );
+
+				if ( elementChanges.tag == UNUSED_TAG )
+				{
+					removeForObject ( elementChanges.pIdentyfier );
+				}
+				else
+				{
+					removeForTag ( elementChanges.pIdentyfier, elementChanges.tag );
+				}
 			}
 			else
 			{
@@ -239,8 +283,38 @@ private:
 			}
 		}
 	}
+
+	void removeForTag ( CCObject* const pObject, size_t tag )
+	{
+
+		auto iterator = m_indexMap.find ( tag );
+
+		if ( iterator == m_indexMap.end() )
+		{
+			return;
+		}
+
+		const int index = iterator->second;
+		assert ( index >= 0 );
+		assert ( index < ( int ) m_callbacks.size() );
+		auto& localVector = m_callbacks[index];
+
+		for ( int i = static_cast<int> ( localVector.size() ) - 1 ; i > -1; --i )
+		{
+			Element& element = localVector[i];
+
+			if ( pObject == element.pIdentyfier )
+			{
+				free ( element.pCallback );
+				element.pCallback = nullptr;
+				//order isn't important
+				std::swap ( localVector[i], localVector.back() );
+				localVector.pop_back();
+			}
+		}
+	}
 };
 
 } /* namespace KoalaComponent */
-
+#undef UNUSED_TAG
 #endif /* NOTIFIER_H__ */

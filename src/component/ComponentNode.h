@@ -18,6 +18,8 @@ namespace KoalaComponent
 
 MAKE_NOTIFICATION ( OnEnter );
 MAKE_NOTIFICATION ( OnExit );
+MAKE_NOTIFICATION ( OnUpdateComponentNode, float );
+MAKE_NOTIFICATION ( OnVisitComponentNode, Utils::Callback<void () >, bool* );
 
 template <typename BaseClazz>
 class ComponentNode : public BaseClazz
@@ -62,6 +64,28 @@ public:
 		m_pNotifier.notify ( getNotificationOnExit() );
 	}
 
+	virtual void update ( float dt ) override
+	{
+		inherited::update ( dt );
+		m_pNotifier.notify ( getNotificationOnUpdateComponentNode(), dt );
+	}
+
+	virtual void visit() override
+	{
+		bool callVisit = true;
+		//TODO const &?
+		const Utils::Callback<void () > callback =  Utils::makeCallback ( this,
+				&ComponentNode::visitCallback );
+		m_pNotifier.notify ( getNotificationOnVisitComponentNode(), callback,
+							 &callVisit );
+
+		if ( callVisit )
+		{
+			//TODO optimize this and make speed tests
+			inherited::visit();
+		}
+	}
+
 	ComponentManager& getComponentManager()
 	{
 		return m_manager;
@@ -81,6 +105,11 @@ protected:
 private:
 	Notifier m_pNotifier;
 	ComponentManager m_manager;
+
+	void visitCallback()
+	{
+		inherited::visit();
+	}
 };
 
 } /* namespace KoalaComponent */
