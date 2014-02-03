@@ -72,7 +72,7 @@ Performance test
 
 Performance tests are disabled in unit_test/NotifierTest.cpp
 
-On PC (DEBUG)
+On PC (DEBUG) (AMD Phenom 2 x6)
 ===================
             Notifier_1kk_notify_to_1_listener ::	avg1: 0µ,	avg2: 0µ,	min: 0µ,	max: 14µ,	total: 0.29s,	nr calls: 1000000
 	    Notifier_1kk_notify_to_1_listener ::	avg1: 0µ,	avg2: 0µ,	min: 0µ,	max: 83µ,	total: 0.30s,	nr calls: 1000000
@@ -100,7 +100,7 @@ CCNotificationCenter_100k_notify_to_1k_listener_multiple_notifications ::	avg1: 
 CCNotificationCenter_100k_notify_to_1k_listener_multiple_notifications ::	avg1: 55µ,	avg2: 54µ,	min: 50µ,	max: 133µ,	total: 5.47s,	nr calls: 100000
 
 
-On PC (RELEASE)
+On PC (RELEASE) (AMD Phenom 2 x6)
 ===================
 	    Notifier_1kk_notify_to_1_listener ::	avg1: 0µ,	avg2: 0µ,	min: 0µ,	max: 9µ,	total: 0.08s,	nr calls: 1000000
 	    Notifier_1kk_notify_to_1_listener ::	avg1: 0µ,	avg2: 0µ,	min: 0µ,	max: 20µ,	total: 0.08s,	nr calls: 1000000
