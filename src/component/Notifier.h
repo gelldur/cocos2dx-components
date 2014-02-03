@@ -174,7 +174,7 @@ public:
 	 * @param tag of the notification
 	 * @return count of listeners
 	 */
-	size_t getListenersCount(size_t tag)
+	size_t getListenersCount ( size_t tag )
 	{
 		auto iterator = m_indexMap.find ( tag );
 
@@ -185,7 +185,7 @@ public:
 
 		const int index = iterator->second;
 		assert ( index >= 0 );
-		assert ( index < (int)m_callbacks.size() );
+		assert ( index < ( int ) m_callbacks.size() );
 		return m_callbacks[index].size();
 	}
 

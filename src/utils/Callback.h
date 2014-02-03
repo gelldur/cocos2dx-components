@@ -111,7 +111,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename... ClassArgs>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( ClassArgs... ) )
+					ClassReturnType ( ClassType::*method ) ( ClassArgs... ) )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -130,7 +130,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename... ClassArgs>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( ClassArgs... ) const )
+					ClassReturnType ( ClassType::*method ) ( ClassArgs... ) const )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -281,7 +281,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( ) )
+					ClassReturnType ( ClassType::*method ) ( ) )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -300,7 +300,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( ) const )
+					ClassReturnType ( ClassType::*method ) ( ) const )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -373,14 +373,14 @@ private:
 
 template<typename ReturnType, typename ObjectType, typename MethodType>
 Callback<ReturnType() > makeCallback ( ObjectType* pObject,
-										ReturnType ( MethodType::*method ) ( ) )
+									   ReturnType ( MethodType::*method ) ( ) )
 {
 	return Callback<ReturnType() > ( pObject, method );
 }
 
 template<typename ReturnType, typename ObjectType, typename MethodType>
 Callback<ReturnType() > makeCallback ( ObjectType* pObject,
-										ReturnType ( MethodType::*method ) ( ) const )
+									   ReturnType ( MethodType::*method ) ( ) const )
 {
 	return Callback<ReturnType() > ( pObject, method );
 }
@@ -446,7 +446,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1 ) )
+					ClassReturnType ( ClassType::*method ) ( CT1 ) )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -465,7 +465,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1 >
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1 ) const )
+					ClassReturnType ( ClassType::*method ) ( CT1 ) const )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -613,7 +613,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1, typename CT2>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1, CT2 ) )
+					ClassReturnType ( ClassType::*method ) ( CT1, CT2 ) )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -632,7 +632,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1, typename CT2 >
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1, CT2 ) const )
+					ClassReturnType ( ClassType::*method ) ( CT1, CT2 ) const )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -781,7 +781,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1, typename CT2, typename CT3>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3 ) )
+					ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3 ) )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -800,7 +800,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1, typename CT2, typename CT3 >
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3 ) const )
+					ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3 ) const )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -950,7 +950,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1, typename CT2, typename CT3, typename CT4>
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3, CT4 ) )
+					ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3, CT4 ) )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
@@ -969,7 +969,7 @@ public:
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename CT1, typename CT2, typename CT3, typename CT4 >
 	Callback& set ( ObjectType* pObject,
-					 ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3, CT4 ) const )
+					ClassReturnType ( ClassType::*method ) ( CT1, CT2, CT3, CT4 ) const )
 	{
 		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
 						"CCObject must be the base of used class" );
