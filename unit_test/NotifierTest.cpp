@@ -264,7 +264,7 @@ TEST ( Notifier, TestOfNotificationChangesStackDoubleCommands )
 	EXPECT_EQ ( 1, notifier.getListenersCount ( getNotificationTest2().tag ) );
 }
 
-TEST ( Notifier, SpeedTestNotify )
+TEST ( Notifier, DISABLED_SpeedTestNotify )
 {
 	Notifier* pNotifier = new Notifier();
 	//We want fresh notification center
@@ -302,7 +302,7 @@ TEST ( Notifier, SpeedTestNotify )
 	CC_SAFE_DELETE ( pTestClazz );
 }
 
-TEST ( Notifier, SpeedTestNotifyMultipleListeners )
+TEST ( Notifier, DISABLED_SpeedTestNotifyMultipleListeners )
 {
 	const int listenersCount = 1000;
 	Notifier* pNotifier = new Notifier();
@@ -350,7 +350,7 @@ TEST ( Notifier, SpeedTestNotifyMultipleListeners )
 	}
 }
 
-TEST ( Notifier, SpeedTestNotifyMultipleListenersMultipleNotifications )
+TEST ( Notifier, DISABLED_SpeedTestNotifyMultipleListenersMultipleNotifications )
 {
 	const int listenersCount = 1000;
 	Notifier* pNotifier = new Notifier();
