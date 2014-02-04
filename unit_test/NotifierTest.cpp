@@ -350,7 +350,8 @@ TEST ( Notifier, DISABLED_SpeedTestNotifyMultipleListeners )
 	}
 }
 
-TEST ( Notifier, DISABLED_SpeedTestNotifyMultipleListenersMultipleNotifications )
+TEST ( Notifier,
+	   DISABLED_SpeedTestNotifyMultipleListenersMultipleNotifications )
 {
 	const int listenersCount = 1000;
 	Notifier* pNotifier = new Notifier();
