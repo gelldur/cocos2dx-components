@@ -115,7 +115,6 @@ Component* ComponentManager::getComponent ( int tag )
 		++i;
 	}
 
-	CCAssert ( false, "Can't find such component" );
 	return nullptr;
 }
 

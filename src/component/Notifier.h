@@ -44,9 +44,19 @@ public:
 	}
 
 	Notification& operator= ( const Notification& ) = delete;
-	Notification ( const Notification& ) = delete;
 	Notification& operator= ( Notification && ) = delete;
-	Notification ( Notification&& ) = delete;
+
+	Notification ( const Notification& notification ) :
+		tag ( notification.tag )
+		, hash ( notification.hash )
+	{
+	}
+
+	Notification ( Notification&& notification ) :
+		tag ( notification.tag )
+		, hash ( notification.hash )
+	{
+	}
 
 	const int tag;
 	const size_t hash;
