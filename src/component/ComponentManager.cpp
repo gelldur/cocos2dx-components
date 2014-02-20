@@ -38,11 +38,19 @@ void ComponentManager::addComponent ( Component* const pComponent ,
 {
 #ifdef DEBUG
 
-	for ( int tagAdded : m_componentTags )
+	for ( auto&& tagAdded : m_componentTags )
 	{
 		if ( tagAdded == tag && tag != UNUSED_TAG )
 		{
 			CCAssert ( false, "You can't add component with the same tag again." );
+		}
+	}
+
+	for ( auto pElement : m_components )
+	{
+		if ( pElement == pComponent)
+		{
+			CCAssert ( false, "This component was already added" );
 		}
 	}
 
@@ -71,11 +79,12 @@ void ComponentManager::removeComponent ( const int tag )
 			   "can't delete component with this kind of tag" );
 	int i = 0;
 
-	for ( int componentTag : m_componentTags )
+	for ( auto&& componentTag : m_componentTags )
 	{
 		if ( componentTag == tag )
 		{
 			removeComponentAtPosition ( i );
+			return;
 		}
 
 		++i;
@@ -93,6 +102,7 @@ void ComponentManager::removeComponent ( Component* const pComponent )
 		if ( pElement == pComponent )
 		{
 			removeComponentAtPosition ( i );
+			return;
 		}
 
 		++i;
@@ -121,13 +131,16 @@ Component* ComponentManager::getComponent ( int tag )
 void ComponentManager::removeComponentAtPosition ( const int index )
 {
 	assert ( index < ( int ) m_components.size() );
-
 	Component* pComponent = m_components[index];
+
+	m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pComponent );
 
 	std::swap ( m_components[index], m_components.back() );
 	std::swap ( m_componentTags[index], m_componentTags.back() );
 	m_components.pop_back();
 	m_componentTags.pop_back();
+
+	m_nodeNotifier.removeAllForObject ( pComponent );
 
 	pComponent->release();
 }

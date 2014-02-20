@@ -20,6 +20,12 @@ namespace KoalaComponent
 {
 
 class Component;
+
+/**
+ * In first argument passed what component is goiing to be removed.
+ */
+MAKE_NOTIFICATION ( OnBeforeRemoveFromComponentNode, Component* );
+
 class ComponentManager : public CCObject
 {
 public:

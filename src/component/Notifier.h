@@ -24,6 +24,9 @@ using namespace std;
 #define MAKE_NOTIFICATION( NAME, args... ) inline const KoalaComponent::Notification<args>& getNotification##NAME(){static const KoalaComponent::Notification<args> variable; return variable;}
 #define UNUSED_TAG 0
 
+//TODO posible bug.
+//We keep pointer to object that we want remove but sometime object can already die and other object can be at this pointer?
+
 namespace KoalaComponent
 {
 
@@ -62,6 +65,8 @@ public:
 	const size_t hash;
 };
 
+
+//Notifier can't retain listeners because sometimes we want unregister in destructor.
 class Notifier
 {
 public:
@@ -130,7 +135,6 @@ public:
 	void notify ( const Notification<Args...>& notification, Args... params )
 	{
 		typedef Utils::Callback<void ( Args... ) > CallbackType;
-		const size_t hashForSpecialization = typeid ( CallbackType ).hash_code();
 
 		applyChanges();
 		//TODO optimize for update and visit like methods
@@ -148,12 +152,38 @@ public:
 		const auto& localVector = m_callbacks[index];
 		const int localTag = notification.tag;
 
+#ifdef DEBUG
+		int i = 0;
+#endif
+
 		for ( const Element& element : localVector )
 		{
-			CCAssert ( ( localTag == element.tag ) ? hashForSpecialization == element.hash :
-					   true,
-					   "Callback has different params!" );
+			CCAssert ( element.pIdentyfier->retainCount() > 0,
+					   "Probably you release object during notification" );
+			CCAssert ( ( localTag == element.tag ) ? typeid ( CallbackType ).hash_code() == element.hash :
+					   true, "Callback has different params!" );
 			static_cast<CallbackType*> ( element.pCallback )->call ( params... );
+
+			//Check for use after release
+#ifdef DEBUG
+
+			if ( i + 1 < localVector.size() )
+			{
+				++i;
+				auto& localElement = localVector[i];
+
+				for ( auto& changeElement : m_changesStack )
+				{
+					if ( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
+					{
+						CCAssert ( false,
+								   "One of your listeners is removing another during this notification" );
+					}
+				}
+			}
+
+#endif
+
 		}
 	}
 
