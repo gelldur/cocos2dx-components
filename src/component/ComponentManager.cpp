@@ -38,7 +38,7 @@ void ComponentManager::addComponent ( Component* const pComponent ,
 {
 #ifdef DEBUG
 
-	for ( auto&& tagAdded : m_componentTags )
+	for ( auto && tagAdded : m_componentTags )
 	{
 		if ( tagAdded == tag && tag != UNUSED_TAG )
 		{
@@ -48,7 +48,7 @@ void ComponentManager::addComponent ( Component* const pComponent ,
 
 	for ( auto pElement : m_components )
 	{
-		if ( pElement == pComponent)
+		if ( pElement == pComponent )
 		{
 			CCAssert ( false, "This component was already added" );
 		}
@@ -79,7 +79,7 @@ void ComponentManager::removeComponent ( const int tag )
 			   "can't delete component with this kind of tag" );
 	int i = 0;
 
-	for ( auto&& componentTag : m_componentTags )
+	for ( auto && componentTag : m_componentTags )
 	{
 		if ( componentTag == tag )
 		{
