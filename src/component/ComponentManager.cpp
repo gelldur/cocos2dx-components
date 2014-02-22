@@ -72,9 +72,10 @@ void ComponentManager::removeAllComponents()
 		m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pElement );
 		//We must remove all potential listeners because when we are using notifier from
 		//ComponentNode so we don't have to unregister in destructors
-		m_nodeNotifier.removeAllForObject(pElement);
+		m_nodeNotifier.removeAllForObject ( pElement );
 		pElement->release();
 	}
+
 	m_components.clear();
 }
 
@@ -141,7 +142,7 @@ void ComponentManager::removeComponentAtPosition ( const int index )
 	m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pComponent );
 	//We must remove all potential listeners because when we are using notifier from
 	//ComponentNode so we don't have to unregister in destructors
-	m_nodeNotifier.removeAllForObject(pComponent);
+	m_nodeNotifier.removeAllForObject ( pComponent );
 
 	std::swap ( m_components[index], m_components.back() );
 	std::swap ( m_componentTags[index], m_componentTags.back() );
