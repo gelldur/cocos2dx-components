@@ -69,8 +69,13 @@ void ComponentManager::removeAllComponents()
 	//We dpnt want situation tahat one compoenent can remove other component or even add new one
 	for ( auto* pElement : m_components )
 	{
+		m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pElement );
+		//We must remove all potential listeners because when we are using notifier from
+		//ComponentNode so we don't have to unregister in destructors
+		m_nodeNotifier.removeAllForObject(pElement);
 		pElement->release();
 	}
+	m_components.clear();
 }
 
 void ComponentManager::removeComponent ( const int tag )
@@ -134,6 +139,9 @@ void ComponentManager::removeComponentAtPosition ( const int index )
 	Component* pComponent = m_components[index];
 
 	m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pComponent );
+	//We must remove all potential listeners because when we are using notifier from
+	//ComponentNode so we don't have to unregister in destructors
+	m_nodeNotifier.removeAllForObject(pComponent);
 
 	std::swap ( m_components[index], m_components.back() );
 	std::swap ( m_componentTags[index], m_componentTags.back() );
