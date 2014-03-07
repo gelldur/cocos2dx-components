@@ -24,7 +24,7 @@ using namespace std;
 #define MAKE_NOTIFICATION( NAME, args... ) inline const KoalaComponent::Notification<args>& getNotification##NAME(){static const KoalaComponent::Notification<args> variable; return variable;}
 #define UNUSED_TAG 0
 
-//TODO posible bug.
+//TODO 10 posible bug.
 //We keep pointer to object that we want remove but sometime object can already die and other object can be at this pointer?
 
 namespace KoalaComponent
@@ -70,7 +70,16 @@ public:
 class Notifier
 {
 public:
-	Notifier() {}
+#ifdef DEBUG
+	bool isWorking;
+#endif
+
+	Notifier()
+	{
+#ifdef DEBUG
+		isWorking = false;
+#endif
+	}
 	virtual ~Notifier()
 	{
 		for ( auto && localVector : m_callbacks )
@@ -134,15 +143,21 @@ public:
 	template<typename... Args>
 	void notify ( const Notification<Args...>& notification, Args... params )
 	{
+#ifdef DEBUG
+		isWorking = true;
+#endif
 		typedef Utils::Callback<void ( Args... ) > CallbackType;
 
 		applyChanges();
-		//TODO optimize for update and visit like methods
+		//TODO 20 optimize for update and visit like methods
 
 		auto iterator = m_indexMap.find ( notification.tag );
 
 		if ( iterator == m_indexMap.end() )
 		{
+#ifdef DEBUG
+			isWorking = false;
+#endif
 			return;
 		}
 
@@ -185,6 +200,10 @@ public:
 #endif
 
 		}
+
+#ifdef DEBUG
+		isWorking = false;
+#endif
 	}
 
 	void removeAllForObject ( CCObject* const pObject )

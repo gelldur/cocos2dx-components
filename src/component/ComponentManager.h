@@ -56,10 +56,6 @@ public:
 		return m_nodeNotifier;
 	}
 
-	/**
-	 * @return true if this is root component manager
-	 */
-	bool isRoot() const;
 	void setOwner ( Component* pComponentOwner );
 
 private:

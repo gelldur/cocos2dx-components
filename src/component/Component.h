@@ -25,7 +25,8 @@ public:
 
 	ComponentManager& getOwner()
 	{
-		assert ( m_pOwner );
+		assert ( getWorkingNode() );
+		assert ( m_pOwner != nullptr );
 		return *m_pOwner;
 	}
 
@@ -37,26 +38,12 @@ public:
 		return m_pOwner->getWorkingNode();
 	}
 
-	ComponentManager& getManager()
-	{
-		if ( m_pManager == nullptr )
-		{
-			//Lazyload
-			m_pManager = new ComponentManager ( getWorkingNode(),
-												getOwner().getNodeNotifier() );
-			m_pManager->setOwner ( this );
-		}
-
-		assert ( m_pManager );
-		return *m_pManager;
-	}
-
 	virtual void initComponent ( ComponentManager& manager );
 
 private:
 	ComponentManager* m_pOwner;
-	ComponentManager* m_pManager;
 	void setOwner ( ComponentManager* pManager );
+	void removeOwner();
 };
 
 } /* namespace KoalaComponent */

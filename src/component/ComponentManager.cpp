@@ -25,6 +25,7 @@ ComponentManager::ComponentManager ( CCNode* pWorkingNode ,
 
 ComponentManager::~ComponentManager()
 {
+	m_pWorkingNode = nullptr;
 	removeAllComponents();
 }
 
@@ -66,17 +67,22 @@ void ComponentManager::removeAllComponents()
 {
 	m_componentTags.clear();
 
-	//We dpnt want situation tahat one compoenent can remove other component or even add new one
-	for ( auto* pElement : m_components )
-	{
-		m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pElement );
-		//We must remove all potential listeners because when we are using notifier from
-		//ComponentNode so we don't have to unregister in destructors
-		m_nodeNotifier.removeAllForObject ( pElement );
-		pElement->release();
-	}
+	Component* pComponent = nullptr;
 
-	m_components.clear();
+	while ( m_components.empty() == false )
+	{
+		pComponent = m_components.back();
+
+		m_nodeNotifier.notify ( getNotificationOnBeforeRemoveFromComponentNode(), pComponent );
+		//We must remove all potential listeners because when we are using notifier from
+		//ComponentNode so we don't have to unregister in their destructors
+		m_nodeNotifier.removeAllForObject ( pComponent );
+
+		m_components.pop_back();
+
+		pComponent->removeOwner();
+		pComponent->release();
+	}
 }
 
 void ComponentManager::removeComponent ( const int tag )
