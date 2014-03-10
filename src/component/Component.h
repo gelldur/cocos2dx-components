@@ -38,6 +38,11 @@ public:
 		return m_pOwner->getWorkingNode();
 	}
 
+	bool isOwned() const
+	{
+		return m_pOwner != nullptr;
+	}
+
 	virtual void initComponent ( ComponentManager& manager );
 
 private:

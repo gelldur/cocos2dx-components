@@ -25,8 +25,8 @@ ComponentManager::ComponentManager ( CCNode* pWorkingNode ,
 
 ComponentManager::~ComponentManager()
 {
-	m_pWorkingNode = nullptr;
 	removeAllComponents();
+	m_pWorkingNode = nullptr;
 }
 
 void ComponentManager::addComponent ( Component* const pComponent )
