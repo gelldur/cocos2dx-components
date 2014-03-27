@@ -174,7 +174,7 @@ public:
 		for ( const Element& element : localVector )
 		{
 			CCAssert ( element.pIdentyfier->retainCount() > 0,
-					   "Probably you release object during notification" );
+					   "Probably you release object during notification or you simply didn't unregister your previous object. Look for this notification usage" );
 			CCAssert ( ( localTag == element.tag ) ? typeid ( CallbackType ).hash_code() == element.hash :
 					   true, "Callback has different params!" );
 			static_cast<CallbackType*> ( element.pCallback )->call ( params... );
