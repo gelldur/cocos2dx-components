@@ -59,8 +59,12 @@ void ComponentManager::addComponent ( Component* const pComponent ,
 	m_componentTags.push_back ( tag );
 	m_components.push_back ( pComponent );
 	pComponent->retain();
-
-	pComponent->setOwner ( this );
+	//Extra retain for case when in init we remove self
+	pComponent->retain();
+	{
+		pComponent->setOwner ( this );
+	}
+	pComponent->release();//Remove extra retain
 }
 
 void ComponentManager::removeAllComponents()
