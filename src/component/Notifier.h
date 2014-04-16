@@ -65,6 +65,16 @@ public:
 	const size_t hash;
 };
 
+template<typename NotificationType>
+struct notification_traits;
+
+template<typename... Args>
+struct notification_traits<Notification<Args...>>
+{
+	using callback_type = typename Utils::Callback<void ( Args... ) >;
+	using result_type = void;
+	static const size_t arrity = sizeof... ( Args );
+};
 
 //Notifier can't retain listeners because sometimes we want unregister in destructor.
 class Notifier
@@ -116,7 +126,7 @@ public:
 	void addNotification ( const Notification<Args...>& notification,
 						   const Utils::Callback<void ( Args... ) >& callback )
 	{
-		typedef Utils::Callback<void ( Args... ) > CallbackType;
+		using CallbackType = Utils::Callback<void ( Args... ) >;
 		CCAssert ( callback.isCallable(), "Callback isn't set" );
 		CCAssert ( callback.getObject(), "Notifier is't ready for lambdas" );
 
@@ -140,13 +150,13 @@ public:
 		m_changesStack.emplace_front ( element );
 	}
 
-	template<typename... Args>
-	void notify ( const Notification<Args...>& notification, Args... params )
+	template<typename NotificationType, typename... Args>
+	void notify ( const NotificationType& notification, Args&& ... params )
 	{
 #ifdef DEBUG
 		isWorking = true;
 #endif
-		typedef Utils::Callback<void ( Args... ) > CallbackType;
+		using CallbackType = typename notification_traits<NotificationType>::callback_type;
 
 		applyChanges();
 		//TODO 20 optimize for update and visit like methods
@@ -177,7 +187,8 @@ public:
 					   "Probably you release object during notification" );
 			CCAssert ( ( localTag == element.tag ) ? typeid ( CallbackType ).hash_code() == element.hash :
 					   true, "Callback has different params!" );
-			static_cast<CallbackType*> ( element.pCallback )->call ( params... );
+			static_cast<CallbackType*> ( element.pCallback )->call (
+				std::forward<Args> ( params )... );
 
 			//Check for use after release
 #ifdef DEBUG
@@ -187,7 +198,7 @@ public:
 				++i;
 				auto& localElement = localVector[i];
 
-				for ( auto& changeElement : m_changesStack )
+				for ( auto && changeElement : m_changesStack )
 				{
 					if ( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
 					{
@@ -325,7 +336,7 @@ private:
 
 	void removeForObject ( CCObject* const pObject )
 	{
-		for ( auto& localVector : m_callbacks )
+		for ( auto && localVector : m_callbacks )
 		{
 			for ( int i = static_cast<int> ( localVector.size() ) - 1 ; i > -1; --i )
 			{
