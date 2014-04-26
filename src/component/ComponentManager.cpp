@@ -34,8 +34,7 @@ ComponentManager& ComponentManager::addComponent ( Component* const pComponent )
 	return addComponent ( pComponent, UNUSED_TAG );
 }
 
-ComponentManager& ComponentManager::addComponent ( Component* const pComponent ,
-									  const int tag )
+ComponentManager& ComponentManager::addComponent ( Component* const pComponent, const int tag )
 {
 #ifdef DEBUG
 
@@ -60,7 +59,12 @@ ComponentManager& ComponentManager::addComponent ( Component* const pComponent ,
 	m_components.push_back ( pComponent );
 	pComponent->retain();
 
-	pComponent->setOwner ( this );
+	//Extra retain for case when in init we remove self
+	pComponent->retain();
+	{
+		pComponent->setOwner ( this );
+	}
+	pComponent->release();//Remove extra retain
 
 	return *this;
 }
