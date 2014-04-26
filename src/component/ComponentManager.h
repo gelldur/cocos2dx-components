@@ -36,8 +36,8 @@ public:
 	ComponentManager& operator= ( const ComponentManager& ) = delete;
 	ComponentManager ( const ComponentManager& ) = delete;
 
-	void addComponent ( Component* const pComponent );
-	void addComponent ( Component* const pComponent , const int tag );
+	ComponentManager& addComponent ( Component* const pComponent );
+	ComponentManager& addComponent ( Component* const pComponent , const int tag );
 	void removeComponent ( const int tag );
 	void removeComponent ( Component* const pComponent );
 

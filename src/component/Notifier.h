@@ -72,8 +72,6 @@ template<typename... Args>
 struct notification_traits<Notification<Args...>>
 {
 	using callback_type = typename Utils::Callback<void ( Args... ) >;
-	using result_type = void;
-	static const size_t arrity = sizeof... ( Args );
 };
 
 //Notifier can't retain listeners because sometimes we want unregister in destructor.
