@@ -160,30 +160,32 @@ public:
 		return *this;
 	}
 
-	ReturnType call ( Args... params ) const
+	template<typename... CallArgs>
+	ReturnType call ( CallArgs&& ... params ) const
 	{
 		CALLBACK_ASSERT ( isCallable() );
 
 		if ( m_pointerType == PointerType::ConstMethod )
 		{
 			return ( m_callableObject.first->*m_callableObject.second.constMethod ) (
-					   params... );
+					   std::forward<CallArgs> ( params )... );
 		}
 
 		else if ( m_pointerType == PointerType::NonConstMethod )
 		{
 			return ( m_callableObject.first->*m_callableObject.second.nonConstMethod ) (
-					   params... );
+					   std::forward<CallArgs> ( params )... );
 		}
 
-		return ( *m_callableObject.second.function ) ( params... );
+		return ( *m_callableObject.second.function ) ( std::forward<CallArgs> ( params )... );
 	}
 
-	void callIfCallable ( Args... params ) const
+	template<typename... CallArgs>
+	void callIfCallable ( CallArgs&& ... params ) const
 	{
 		if ( isCallable() )
 		{
-			call ( params... );
+			call ( std::forward<CallArgs> ( params )... );
 		}
 	}
 

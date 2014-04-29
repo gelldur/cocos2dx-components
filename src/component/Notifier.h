@@ -65,6 +65,14 @@ public:
 	const size_t hash;
 };
 
+template<typename NotificationType>
+struct notification_traits;
+
+template<typename... Args>
+struct notification_traits<Notification<Args...>>
+{
+	using callback_type = typename Utils::Callback<void ( Args... ) >;
+};
 
 //Notifier can't retain listeners because sometimes we want unregister in destructor.
 class Notifier
@@ -109,7 +117,7 @@ public:
 	void addNotification ( const Notification<Args...>& notification,
 						   const Utils::Callback<void ( Args... ) >& callback )
 	{
-		typedef Utils::Callback<void ( Args... ) > CallbackType;
+		using CallbackType = Utils::Callback<void ( Args... ) >;
 		CCAssert ( callback.isCallable(), "Callback isn't set" );
 		CCAssert ( callback.getObject(), "Notifier is't ready for lambdas" );
 
@@ -133,9 +141,13 @@ public:
 		m_changesStack.emplace_front ( element );
 	}
 
-	template<typename... Args>
-	void notify ( const Notification<Args...>& notification, Args... params )
+	template<typename NotificationType, typename... Args>
+	void notify ( const NotificationType& notification, Args&& ... params )
 	{
+#ifdef DEBUG
+		isWorking = true;
+#endif
+		using CallbackType = typename notification_traits<NotificationType>::callback_type;
 		assert ( notification.tag > UNUSED_TAG );
 
 		applyChanges();
@@ -166,7 +178,8 @@ public:
 			CCAssert ( ( notification.tag == element.tag ) ? typeid ( CallbackType ).hash_code() ==
 					   element.hash :
 					   true, "Callback has different params!" );
-			static_cast<CallbackType*> ( element.pCallback )->call ( params... );
+			static_cast<CallbackType*> ( element.pCallback )->call (
+				std::forward<Args> ( params )... );
 
 			//Check for use after release
 #ifdef DEBUG
@@ -176,7 +189,7 @@ public:
 				++i;
 				auto& localElement = localVector[i];
 
-				for ( auto& changeElement : m_changesStack )
+				for ( auto && changeElement : m_changesStack )
 				{
 					if ( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
 					{
@@ -327,7 +340,7 @@ private:
 		unsigned i = 0;
 #endif
 
-		for ( auto& localVector : m_callbacks )
+		for ( auto && localVector : m_callbacks )
 		{
 #ifdef DEBUG
 			assert ( i < m_semaphores.size() );

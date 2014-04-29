@@ -29,13 +29,12 @@ ComponentManager::~ComponentManager()
 	m_pWorkingNode = nullptr;
 }
 
-void ComponentManager::addComponent ( Component* const pComponent )
+ComponentManager& ComponentManager::addComponent ( Component* const pComponent )
 {
-	addComponent ( pComponent, UNUSED_TAG );
+	return addComponent ( pComponent, UNUSED_TAG );
 }
 
-void ComponentManager::addComponent ( Component* const pComponent ,
-									  const int tag )
+ComponentManager& ComponentManager::addComponent ( Component* const pComponent, const int tag )
 {
 #ifdef DEBUG
 
@@ -59,12 +58,15 @@ void ComponentManager::addComponent ( Component* const pComponent ,
 	m_componentTags.push_back ( tag );
 	m_components.push_back ( pComponent );
 	pComponent->retain();
+
 	//Extra retain for case when in init we remove self
 	pComponent->retain();
 	{
 		pComponent->setOwner ( this );
 	}
 	pComponent->release();//Remove extra retain
+
+	return *this;
 }
 
 void ComponentManager::removeAllComponents()
