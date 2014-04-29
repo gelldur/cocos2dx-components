@@ -144,9 +144,6 @@ public:
 	template<typename NotificationType, typename... Args>
 	void notify ( const NotificationType& notification, Args&& ... params )
 	{
-#ifdef DEBUG
-		isWorking = true;
-#endif
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
 		assert ( notification.tag > UNUSED_TAG );
 
@@ -168,7 +165,6 @@ public:
 		assert ( m_semaphores[notification.tag] == false );
 		m_semaphores[notification.tag] = true;
 #endif
-		typedef Utils::Callback<void ( Args... ) > CallbackType;
 
 		for ( const Element& element : localVector )
 		{
