@@ -80,15 +80,8 @@ struct notification_traits<Notification<Args...>>
 class Notifier
 {
 public:
-#ifdef DEBUG
-	bool isWorking;
-#endif
-
 	Notifier()
 	{
-#ifdef DEBUG
-		isWorking = false;
-#endif
 	}
 	virtual ~Notifier()
 	{
@@ -157,35 +150,35 @@ public:
 		isWorking = true;
 #endif
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
+		assert ( notification.tag > UNUSED_TAG );
 
 		applyChanges();
-		//TODO 20 optimize for update and visit like methods
 
-		auto iterator = m_indexMap.find ( notification.tag );
-
-		if ( iterator == m_indexMap.end() )
+		//Always first element is a semaphore
+		if ( notification.tag >= m_callbacks.size() || m_callbacks[notification.tag].empty() )
 		{
-#ifdef DEBUG
-			isWorking = false;
-#endif
 			return;
 		}
 
-		const int index = iterator->second;
-		assert ( index >= 0 );
-		assert ( index < m_callbacks.size() );
-		const auto& localVector = m_callbacks[index];
-		const int localTag = notification.tag;
+		assert ( notification.tag < m_callbacks.size() );
+		const auto& localVector = m_callbacks[notification.tag];
 
 #ifdef DEBUG
 		int i = 0;
+		//Start working on this vector
+		assert ( notification.tag < m_semaphores.size() );
+		assert ( m_semaphores[notification.tag] == false );
+		m_semaphores[notification.tag] = true;
 #endif
+		typedef Utils::Callback<void ( Args... ) > CallbackType;
 
 		for ( const Element& element : localVector )
 		{
+			CCAssert ( element.pCallback, "You don't set callback?" );
 			CCAssert ( element.pIdentyfier->retainCount() > 0,
 					   "Probably you release object during notification or you simply didn't unregister your previous object. Look for this notification usage" );
-			CCAssert ( ( localTag == element.tag ) ? typeid ( CallbackType ).hash_code() == element.hash :
+			CCAssert ( ( notification.tag == element.tag ) ? typeid ( CallbackType ).hash_code() ==
+					   element.hash :
 					   true, "Callback has different params!" );
 			static_cast<CallbackType*> ( element.pCallback )->call (
 				std::forward<Args> ( params )... );
@@ -209,11 +202,13 @@ public:
 			}
 
 #endif
-
 		}
 
 #ifdef DEBUG
-		isWorking = false;
+		//Stop working on this vector
+		assert ( notification.tag < m_semaphores.size() );
+		assert ( m_semaphores[notification.tag] == true );
+		m_semaphores[notification.tag] = false;
 #endif
 	}
 
@@ -246,18 +241,28 @@ public:
 	 */
 	size_t getListenersCount ( size_t tag )
 	{
-		auto iterator = m_indexMap.find ( tag );
-
-		if ( iterator == m_indexMap.end() )
+		if (  tag >= m_callbacks.size() )
 		{
 			return 0;
 		}
 
-		const int index = iterator->second;
-		assert ( index >= 0 );
-		assert ( index < ( int ) m_callbacks.size() );
-		return m_callbacks[index].size();
+		return m_callbacks[tag].size();
 	}
+
+#ifdef DEBUG
+	bool isAnyRunning()
+	{
+		for ( auto && element : m_semaphores )
+		{
+			if ( element == true )
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+#endif
 
 private:
 
@@ -281,11 +286,11 @@ private:
 	 * Else we remove all elements for Element::pIdentyfier
 	 */
 	deque<Element> m_changesStack;
-	/**
-	 * unique id - index in m_callbacks
-	 */
-	map<size_t, int> m_indexMap;
+
 	vector< vector < Element > > m_callbacks;
+#ifdef DEBUG
+	vector<char> m_semaphores;
+#endif
 
 	void applyChanges()
 	{
@@ -315,19 +320,16 @@ private:
 			else
 			{
 				//If it isn't to delete we probably want to add
-				auto iterator = m_indexMap.find ( elementChanges.tag );
-
-				if ( iterator == m_indexMap.end() )
+				if ( m_callbacks.size() <= elementChanges.tag  )
 				{
-					m_callbacks.emplace_back ( vector<Element>() );
-					iterator = m_indexMap.emplace_hint ( m_indexMap.end(),
-														 std::make_pair ( elementChanges.tag, m_callbacks.size() - 1 ) );
+					m_callbacks.resize ( elementChanges.tag + 64 );
+#ifdef DEBUG
+					m_semaphores.resize ( m_callbacks.size() );
+#endif
 				}
 
-				const int index = iterator->second;
-				assert ( index < ( int ) m_callbacks.size() );
-				auto& localVector = m_callbacks[index];
-				localVector.emplace_back ( elementChanges );
+				assert ( elementChanges.tag < m_callbacks.size() );
+				m_callbacks[elementChanges.tag].emplace_back ( elementChanges );
 			}
 
 			m_changesStack.pop_back();
@@ -336,8 +338,18 @@ private:
 
 	void removeForObject ( CCObject* const pObject )
 	{
+#ifdef DEBUG
+		unsigned i = 0;
+#endif
+
 		for ( auto && localVector : m_callbacks )
 		{
+#ifdef DEBUG
+			assert ( i < m_semaphores.size() );
+			assert ( m_semaphores[i] == false );
+			++i;
+#endif
+
 			for ( int i = static_cast<int> ( localVector.size() ) - 1 ; i > -1; --i )
 			{
 				Element& element = localVector[i];
@@ -356,18 +368,18 @@ private:
 
 	void removeForTag ( CCObject* const pObject, size_t tag )
 	{
-
-		auto iterator = m_indexMap.find ( tag );
-
-		if ( iterator == m_indexMap.end() )
+		if ( tag >= m_callbacks.size() )
 		{
 			return;
 		}
 
-		const int index = iterator->second;
-		assert ( index >= 0 );
-		assert ( index < ( int ) m_callbacks.size() );
-		auto& localVector = m_callbacks[index];
+		assert ( tag >= 0 );
+		assert ( tag <  m_callbacks.size() );
+#ifdef DEBUG
+		assert ( tag < m_semaphores.size() );
+		assert ( m_semaphores[tag] == false );
+#endif
+		auto& localVector = m_callbacks[tag];
 
 		for ( int i = static_cast<int> ( localVector.size() ) - 1 ; i > -1; --i )
 		{
