@@ -11,7 +11,7 @@ namespace KoalaComponent
 {
 
 Component::Component() :
-	m_pOwner ( nullptr )
+	m_pOwner( nullptr )
 {
 }
 
@@ -20,14 +20,14 @@ Component::~Component()
 	m_pOwner = nullptr;
 }
 
-void Component::initComponent ( ComponentManager& manager )
+void Component::initComponent( ComponentManager& manager )
 {
 }
 
-void Component::setOwner ( ComponentManager* pManager )
+void Component::setOwner( ComponentManager* pManager )
 {
 	m_pOwner = pManager;
-	initComponent ( *pManager );
+	initComponent( *pManager );
 }
 
 void Component::removeOwner()

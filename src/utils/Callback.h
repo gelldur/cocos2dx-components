@@ -57,33 +57,33 @@ template<typename T>
 class Callback;
 
 template<typename ReturnType, typename... Args>
-class Callback<ReturnType ( Args... ) >
+class Callback<ReturnType( Args... )>
 {
 
 public:
 
 	Callback() :
-		m_pointerType ( PointerType::NonConstMethod )
+		m_pointerType( PointerType::NonConstMethod )
 	{
 	}
 
 	template<typename ClassType, typename MethodType>
-	Callback ( ClassType* pObject, const MethodType& method ) :
-		m_pointerType ( PointerType::NonConstMethod )
+	Callback( ClassType* pObject, const MethodType& method ) :
+		m_pointerType( PointerType::NonConstMethod )
 	{
-		static_assert ( std::is_member_function_pointer<MethodType>::value,
-						"The second argument must be a pointer to a method" );
-		set ( pObject, method );
+		static_assert( std::is_member_function_pointer<MethodType>::value,
+					   "The second argument must be a pointer to a method" );
+		set( pObject, method );
 	}
 
 	template<typename FunctionType>
-	Callback ( const FunctionType& functor ) :
-		m_pointerType ( PointerType::Function )
+	Callback( const FunctionType& functor ) :
+		m_pointerType( PointerType::Function )
 	{
-		set ( functor );
+		set( functor );
 	}
 
-	Callback ( const Callback& otherCallback )
+	Callback( const Callback& otherCallback )
 	{
 		m_callableObject = otherCallback.m_callableObject;
 		m_pointerType = otherCallback.m_pointerType;
@@ -108,84 +108,84 @@ public:
 	}
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename... ClassArgs>
-	Callback& set ( ObjectType* pObject,
-					ClassReturnType ( ClassType::*method ) ( ClassArgs... ) )
+	Callback& set( ObjectType* pObject,
+				   ClassReturnType( ClassType::*method )( ClassArgs... ) )
 	{
-		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
-						"CCObject must be the base of used class" );
+		static_assert( std::is_base_of<BaseClass, ClassType>::value,
+					   "CCObject must be the base of used class" );
 
-		static_assert ( std::is_base_of<ClassType, ObjectType>::value,
-						"Pointer to method must be the base of object's pointer" );
+		static_assert( std::is_base_of<ClassType, ObjectType>::value,
+					   "Pointer to method must be the base of object's pointer" );
 
 		m_pointerType = PointerType::NonConstMethod;
 		MethodPointer methodPointer;
 		methodPointer.nonConstMethod =
-			static_cast<ReturnType ( BaseClass::* ) ( Args... ) > ( method );
+			static_cast<ReturnType( BaseClass::* )( Args... )> ( method );
 
-		m_callableObject = std::make_pair ( pObject, methodPointer );
+		m_callableObject = std::make_pair( pObject, methodPointer );
 		return *this;
 	}
 
 	template<typename ObjectType, typename ClassType, typename ClassReturnType, typename... ClassArgs>
-	Callback& set ( ObjectType* pObject,
-					ClassReturnType ( ClassType::*method ) ( ClassArgs... ) const )
+	Callback& set( ObjectType* pObject,
+				   ClassReturnType( ClassType::*method )( ClassArgs... ) const )
 	{
-		static_assert ( std::is_base_of<BaseClass, ClassType>::value,
-						"CCObject must be the base of used class" );
+		static_assert( std::is_base_of<BaseClass, ClassType>::value,
+					   "CCObject must be the base of used class" );
 
-		static_assert ( std::is_base_of<ClassType, ObjectType>::value,
-						"Pointer to method must be the base of object's pointer" );
+		static_assert( std::is_base_of<ClassType, ObjectType>::value,
+					   "Pointer to method must be the base of object's pointer" );
 
 		m_pointerType = PointerType::ConstMethod;
 		MethodPointer methodPointer;
 		methodPointer.constMethod =
-			static_cast<ReturnType ( BaseClass::* ) ( Args... ) const> ( method );
+			static_cast<ReturnType( BaseClass::* )( Args... ) const> ( method );
 
-		m_callableObject = std::make_pair ( pObject, methodPointer );
+		m_callableObject = std::make_pair( pObject, methodPointer );
 		return *this;
 	}
 
 	template<typename FunctionType>
-	Callback& set ( const FunctionType& functor )
+	Callback& set( const FunctionType& functor )
 	{
-		static_assert (
-			std::is_convertible<FunctionType, std::function<ReturnType ( Args... ) >>::value,
+		static_assert(
+			std::is_convertible<FunctionType, std::function<ReturnType( Args... )>>::value,
 			"Parameter must be either function (static method) pointer or non-capturing lambda" );
 
 		m_pointerType = PointerType::Function;
 		MethodPointer methodPointer;
-		methodPointer.function = static_cast<ReturnType ( * ) ( Args... ) > ( functor );
+		methodPointer.function = static_cast<ReturnType( * )( Args... )> ( functor );
 
-		m_callableObject = std::make_pair ( nullptr, methodPointer );
+		m_callableObject = std::make_pair( nullptr, methodPointer );
 		return *this;
 	}
 
 	template<typename... CallArgs>
-	ReturnType call ( CallArgs&& ... params ) const
+	ReturnType call( CallArgs&& ... params ) const
 	{
-		CALLBACK_ASSERT ( isCallable() );
+		CALLBACK_ASSERT( isCallable() );
 
-		if ( m_pointerType == PointerType::ConstMethod )
+		if( m_pointerType == PointerType::ConstMethod )
 		{
-			return ( m_callableObject.first->*m_callableObject.second.constMethod ) (
+			return ( m_callableObject.first->*m_callableObject.second.constMethod )(
 					   std::forward<CallArgs> ( params )... );
 		}
 
-		else if ( m_pointerType == PointerType::NonConstMethod )
+		else if( m_pointerType == PointerType::NonConstMethod )
 		{
-			return ( m_callableObject.first->*m_callableObject.second.nonConstMethod ) (
+			return ( m_callableObject.first->*m_callableObject.second.nonConstMethod )(
 					   std::forward<CallArgs> ( params )... );
 		}
 
-		return ( *m_callableObject.second.function ) ( std::forward<CallArgs> ( params )... );
+		return ( *m_callableObject.second.function )( std::forward<CallArgs> ( params )... );
 	}
 
 	template<typename... CallArgs>
-	void callIfCallable ( CallArgs&& ... params ) const
+	void callIfCallable( CallArgs&& ... params ) const
 	{
-		if ( isCallable() )
+		if( isCallable() )
 		{
-			call ( std::forward<CallArgs> ( params )... );
+			call( std::forward<CallArgs> ( params )... );
 		}
 	}
 
@@ -193,9 +193,9 @@ private:
 
 	union MethodPointer
 	{
-		ReturnType ( BaseClass::*nonConstMethod ) ( Args... );
-		ReturnType ( BaseClass::*constMethod ) ( Args... ) const;
-		ReturnType ( *function ) ( Args... );
+		ReturnType( BaseClass::*nonConstMethod )( Args... );
+		ReturnType( BaseClass::*constMethod )( Args... ) const;
+		ReturnType( *function )( Args... );
 	};
 
 	enum class PointerType : unsigned char
@@ -212,24 +212,24 @@ private:
 
 
 template<typename ReturnType, typename ObjectType, typename MethodType, typename... Args>
-Callback<ReturnType ( Args... ) > makeCallback ( ObjectType* pObject,
-		ReturnType ( MethodType::*method ) ( Args... ) )
+Callback<ReturnType( Args... )> makeCallback( ObjectType* pObject,
+		ReturnType( MethodType::*method )( Args... ) )
 {
-	return Callback<ReturnType ( Args... ) > ( pObject, method );
+	return Callback<ReturnType( Args... )> ( pObject, method );
 }
 
 template<typename ReturnType, typename ObjectType, typename MethodType, typename... Args>
-Callback<ReturnType ( Args... ) > makeCallback ( ObjectType* pObject,
-		ReturnType ( MethodType::*method ) ( Args... ) const )
+Callback<ReturnType( Args... )> makeCallback( ObjectType* pObject,
+		ReturnType( MethodType::*method )( Args... ) const )
 {
-	return Callback<ReturnType ( Args... ) > ( pObject, method );
+	return Callback<ReturnType( Args... )> ( pObject, method );
 }
 
 template<typename ReturnType, typename... Args>
-Callback<ReturnType ( Args... ) > makeCallback ( ReturnType ( *function ) (
+Callback<ReturnType( Args... )> makeCallback( ReturnType( *function )(
 			Args... ) )
 {
-	return Callback<ReturnType ( Args... ) > ( function );
+	return Callback<ReturnType( Args... )> ( function );
 }
 
 } // namespace Utils

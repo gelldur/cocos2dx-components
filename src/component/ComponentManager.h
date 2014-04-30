@@ -24,7 +24,7 @@ class Component;
 /**
  * In first argument passed what component is goiing to be removed.
  */
-MAKE_NOTIFICATION ( OnBeforeRemoveFromComponentNode, Component* );
+MAKE_NOTIFICATION( OnBeforeRemoveFromComponentNode, Component* );
 
 class ComponentManager : public CCObject
 {
@@ -34,20 +34,20 @@ public:
 	virtual ~ComponentManager();
 
 	ComponentManager& operator= ( const ComponentManager& ) = delete;
-	ComponentManager ( const ComponentManager& ) = delete;
+	ComponentManager( const ComponentManager& ) = delete;
 
-	ComponentManager& addComponent ( Component* const pComponent );
-	ComponentManager& addComponent ( Component* const pComponent , const int tag );
-	void removeComponent ( const int tag );
-	void removeComponent ( Component* const pComponent );
+	ComponentManager& addComponent( Component* const pComponent );
+	ComponentManager& addComponent( Component* const pComponent , const int tag );
+	void removeComponent( const int tag );
+	void removeComponent( Component* const pComponent );
 
 	void removeAllComponents();
 
-	Component* getComponent ( const int tag );
+	Component* getComponent( const int tag );
 
 	CCNode* getWorkingNode()
 	{
-		assert ( m_pWorkingNode != nullptr );
+		assert( m_pWorkingNode != nullptr );
 		return m_pWorkingNode;
 	}
 
@@ -56,7 +56,7 @@ public:
 		return m_nodeNotifier;
 	}
 
-	void setOwner ( Component* pComponentOwner );
+	void setOwner( Component* pComponentOwner );
 
 private:
 	CCNode* m_pWorkingNode;
@@ -71,9 +71,9 @@ private:
 	 */
 	Component* m_pOwner;
 
-	ComponentManager ( CCNode* pWorkingNode, Notifier& pNotifierNode );
+	ComponentManager( CCNode* pWorkingNode, Notifier& pNotifierNode );
 
-	void removeComponentAtPosition ( const int index );
+	void removeComponentAtPosition( const int index );
 };
 
 

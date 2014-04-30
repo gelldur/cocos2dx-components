@@ -25,16 +25,16 @@ public:
 
 	ComponentManager& getOwner()
 	{
-		assert ( getWorkingNode() );
-		assert ( m_pOwner != nullptr );
+		assert( getWorkingNode() );
+		assert( m_pOwner != nullptr );
 		return *m_pOwner;
 	}
 
 
 	CCNode* getWorkingNode()
 	{
-		assert ( m_pOwner );
-		assert ( m_pOwner->getWorkingNode() );
+		assert( m_pOwner );
+		assert( m_pOwner->getWorkingNode() );
 		return m_pOwner->getWorkingNode();
 	}
 
@@ -43,11 +43,11 @@ public:
 		return m_pOwner != nullptr;
 	}
 
-	virtual void initComponent ( ComponentManager& manager );
+	virtual void initComponent( ComponentManager& manager );
 
 private:
 	ComponentManager* m_pOwner;
-	void setOwner ( ComponentManager* pManager );
+	void setOwner( ComponentManager* pManager );
 	void removeOwner();
 };
 

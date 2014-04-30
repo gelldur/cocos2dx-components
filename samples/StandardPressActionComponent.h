@@ -17,20 +17,20 @@ class StandardPressActionComponent : public Component
 {
 public:
 	//KK_CREATE_METHOD is similar to CREATE_FUNC but we don't call init()
-	KK_CREATE_METHOD ( StandardPressActionComponent );
+	KK_CREATE_METHOD( StandardPressActionComponent );
 	virtual ~StandardPressActionComponent();
 
 	/**
 	 * Initialize your component
 	 * @param manager manager that is owner of this Component
 	 */
-	virtual void initComponent ( ComponentManager& manager ) override;
+	virtual void initComponent( ComponentManager& manager ) override;
 
 private:
 	void resetView();
 
-	void onPress ( );
-	void onUnPress ( );
+	void onPress( );
+	void onUnPress( );
 
 	StandardPressActionComponent();
 	enum ID

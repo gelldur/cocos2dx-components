@@ -16,10 +16,10 @@
 namespace KoalaComponent
 {
 
-MAKE_NOTIFICATION ( OnEnter );
-MAKE_NOTIFICATION ( OnExit );
-MAKE_NOTIFICATION ( OnUpdateComponentNode, float );
-MAKE_NOTIFICATION ( OnVisitComponentNode, Utils::Callback<void () >, bool* );
+MAKE_NOTIFICATION( OnEnter );
+MAKE_NOTIFICATION( OnExit );
+MAKE_NOTIFICATION( OnUpdateComponentNode, float );
+MAKE_NOTIFICATION( OnVisitComponentNode, Utils::Callback<void ()>, bool* );
 
 template <typename BaseClazz>
 class ComponentNode : public BaseClazz
@@ -30,24 +30,24 @@ public:
 
 	static ComponentNode* create()
 	{
-		static_assert ( std::is_base_of<cocos2d::CCNode, BaseClazz>::value,
-						"ComponentNode can be only created with BaseClazz derived from CCNode" );
+		static_assert( std::is_base_of<cocos2d::CCNode, BaseClazz>::value,
+					   "ComponentNode can be only created with BaseClazz derived from CCNode" );
 		ComponentNode* pRet = new ComponentNode();
 
-		if ( pRet )
+		if( pRet )
 		{
 			pRet->autorelease();
 			return pRet;
 		}
 
-		CC_SAFE_DELETE ( pRet );
+		CC_SAFE_DELETE( pRet );
 		return pRet = nullptr;
 	}
 
 	virtual ~ComponentNode()
 	{
 #ifdef DEBUG
-		assert ( m_pNotifier.isAnyRunning() == false );
+		assert( m_pNotifier.isAnyRunning() == false );
 #endif
 	}
 
@@ -58,19 +58,19 @@ public:
 	virtual void onEnter() override
 	{
 		inherited::onEnter();
-		m_pNotifier.notify ( getNotificationOnEnter() );
+		m_pNotifier.notify( getNotificationOnEnter() );
 	}
 
 	virtual void onExit() override
 	{
 		inherited::onExit();
-		m_pNotifier.notify ( getNotificationOnExit() );
+		m_pNotifier.notify( getNotificationOnExit() );
 	}
 
-	virtual void update ( float dt ) override
+	virtual void update( float dt ) override
 	{
-		inherited::update ( dt );
-		m_pNotifier.notify ( getNotificationOnUpdateComponentNode(), dt );
+		inherited::update( dt );
+		m_pNotifier.notify( getNotificationOnUpdateComponentNode(), dt );
 	}
 
 	ComponentManager& getComponentManager()
@@ -85,7 +85,7 @@ public:
 
 protected:
 	ComponentNode() :
-		m_manager ( this, m_pNotifier )
+		m_manager( this, m_pNotifier )
 	{
 	}
 

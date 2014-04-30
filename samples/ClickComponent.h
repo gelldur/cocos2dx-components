@@ -22,18 +22,18 @@ namespace KoalaJump
 class ClickComponent : public Component, public CCTouchDelegate
 {
 public:
-	static ClickComponent* create ( const Callback<void ( CCNode* ) >& callback,
-									const CCSize& touchMargin = CCSizeZero )
+	static ClickComponent* create( const Callback<void ( CCNode* )>& callback,
+								   const CCSize& touchMargin = CCSizeZero )
 	{
-		ClickComponent* pRet = new ClickComponent ( callback, touchMargin );
+		ClickComponent* pRet = new ClickComponent( callback, touchMargin );
 
-		if ( pRet )
+		if( pRet )
 		{
 			pRet->autorelease();
 			return pRet;
 		}
 
-		CC_SAFE_DELETE ( pRet );
+		CC_SAFE_DELETE( pRet );
 		return pRet = nullptr;
 	}
 
@@ -43,7 +43,7 @@ public:
 	 * Initialize your component
 	 * @param manager manager that is owner of this Component
 	 */
-	virtual void initComponent ( ComponentManager& manager ) override;
+	virtual void initComponent( ComponentManager& manager ) override;
 
 	/**
 	 * Callback for onEnter
@@ -55,8 +55,8 @@ public:
 	 */
 	void onExit();
 
-	void onTouchBegan ( CCTouch* pTouch, bool* pReturnValue );
-	void onTouchEnded ( CCTouch* pTouch );
+	void onTouchBegan( CCTouch* pTouch, bool* pReturnValue );
+	void onTouchEnded( CCTouch* pTouch );
 
 	/**
 	 * Margin for touch it is used by TouchManager::detectTouchOnNode simply if your
@@ -64,19 +64,19 @@ public:
 	 * on 30 x 30 square (add 5 to each side of node)
 	 * @param margin
 	 */
-	void setMarginForClick ( const CCSize&  margin );
+	void setMarginForClick( const CCSize&  margin );
 
 	/**
 	 * @param callback callback for notification that we clicked Node. If callback isn't callable we won't call it
 	 */
-	void setOnClickCallback ( Callback<void ( CCNode* ) > callback );
+	void setOnClickCallback( Callback<void ( CCNode* )> callback );
 
 private:
 	CCSize m_marginForTouch;
-	Callback<void ( CCNode* ) > m_callback;
+	Callback<void ( CCNode* )> m_callback;
 
-	ClickComponent ( const Callback<void ( CCNode* ) >& callback,
-					 const CCSize& touchMargin = CCSizeZero );
+	ClickComponent( const Callback<void ( CCNode* )>& callback,
+					const CCSize& touchMargin = CCSizeZero );
 };
 
 } /* namespace KoalaJump */
