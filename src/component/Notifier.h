@@ -150,18 +150,19 @@ public:
 		applyChanges();
 
 		//Always first element is a semaphore
-		if( notification.tag >= m_callbacks.size() || m_callbacks[notification.tag].empty() )
+		if( notification.tag >= static_cast<int>( m_callbacks.size() ) 
+			|| m_callbacks[notification.tag].empty() )
 		{
 			return;
 		}
 
-		assert( notification.tag < m_callbacks.size() );
+		assert( notification.tag < static_cast<int>( m_callbacks.size() ) );
 		const auto& localVector = m_callbacks[notification.tag];
 
 #ifdef DEBUG
-		int i = 0;
+		size_t i = 0;
 		//Start working on this vector
-		assert( notification.tag < m_semaphores.size() );
+		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
 		assert( m_semaphores[notification.tag] == false );
 		m_semaphores[notification.tag] = true;
 #endif
@@ -171,9 +172,9 @@ public:
 			CCAssert( element.pCallback, "You don't set callback?" );
 			CCAssert( element.pIdentyfier->retainCount() > 0,
 					  "Probably you release object during notification or you simply didn't unregister your previous object. Look for this notification usage" );
-			CCAssert( ( notification.tag == element.tag ) ? typeid( CallbackType ).hash_code() ==
-					  element.hash :
-					  true, "Callback has different params!" );
+			CCAssert( ( notification.tag == static_cast<int>( element.tag ) ) 
+				? typeid( CallbackType ).hash_code() == element.hash
+				: true, "Callback has different params!" );
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
 
@@ -200,7 +201,7 @@ public:
 
 #ifdef DEBUG
 		//Stop working on this vector
-		assert( notification.tag < m_semaphores.size() );
+		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
 		assert( m_semaphores[notification.tag] == true );
 		m_semaphores[notification.tag] = false;
 #endif
