@@ -83,6 +83,12 @@ public:
 		return m_pNotifier;
 	}
 
+	template<typename Type>
+	inline Type* getComponent()
+	{
+		return m_manager.getComponent<Type>();
+	}
+
 protected:
 	ComponentNode() :
 		m_manager( this, m_pNotifier )

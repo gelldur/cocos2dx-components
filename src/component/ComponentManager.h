@@ -21,6 +21,19 @@ namespace KoalaComponent
 
 class Component;
 
+inline int _UniqueComponentIdNonDeterministic()
+{
+	static int id = 1001;
+	return ++id;
+}
+
+template <typename Type>
+inline int getIdForType()
+{
+    static int id_for_type = _UniqueComponentIdNonDeterministic();
+    return id_for_type;
+}
+
 /**
  * In first argument passed what component is goiing to be removed.
  */
@@ -38,7 +51,21 @@ public:
 
 	ComponentManager& addComponent( Component* const pComponent );
 	ComponentManager& addComponent( Component* const pComponent , const int tag );
+
+	template<typename Type>
+	ComponentManager& addComponent( Type* const pComponent )
+	{
+		return addComponent(pComponent,getIdForType<Type>());
+	}
+
 	void removeComponent( const int tag );
+
+	template<typename Type>
+	void removeComponent()
+	{
+		removeComponent(getIdForType<Type>());
+	}
+
 	void removeComponent( Component* const pComponent );
 
 	void removeAllComponents();
@@ -57,6 +84,13 @@ public:
 	}
 
 	void setOwner( Component* pComponentOwner );
+
+	template<typename Type>
+	inline Type* getComponent()
+	{
+		assert( getComponent(getIdForType<Type>()) == nullptr ||  dynamic_cast<Type*>( getComponent(getIdForType<Type>())));
+		return static_cast<Type*>( getComponent(getIdForType<Type>()));
+	}
 
 private:
 	CCNode* m_pWorkingNode;
