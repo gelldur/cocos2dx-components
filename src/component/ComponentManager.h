@@ -30,8 +30,8 @@ inline int _UniqueComponentIdNonDeterministic()
 template <typename Type>
 inline int getIdForType()
 {
-    static int id_for_type = _UniqueComponentIdNonDeterministic();
-    return id_for_type;
+	static int id_for_type = _UniqueComponentIdNonDeterministic();
+	return id_for_type;
 }
 
 /**
@@ -55,7 +55,7 @@ public:
 	template<typename Type>
 	ComponentManager& addComponent( Type* const pComponent )
 	{
-		return addComponent(pComponent,getIdForType<Type>());
+		return addComponent( pComponent, getIdForType<Type>() );
 	}
 
 	void removeComponent( const int tag );
@@ -63,7 +63,7 @@ public:
 	template<typename Type>
 	void removeComponent()
 	{
-		removeComponent(getIdForType<Type>());
+		removeComponent( getIdForType<Type>() );
 	}
 
 	void removeComponent( Component* const pComponent );
@@ -88,8 +88,9 @@ public:
 	template<typename Type>
 	inline Type* getComponent()
 	{
-		assert( getComponent(getIdForType<Type>()) == nullptr ||  dynamic_cast<Type*>( getComponent(getIdForType<Type>())));
-		return static_cast<Type*>( getComponent(getIdForType<Type>()));
+		assert( getComponent( getIdForType<Type>() ) == nullptr
+				||  dynamic_cast<Type*>( getComponent( getIdForType<Type>() ) ) );
+		return static_cast<Type*>( getComponent( getIdForType<Type>() ) );
 	}
 
 private:
