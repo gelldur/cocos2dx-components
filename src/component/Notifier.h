@@ -150,8 +150,8 @@ public:
 		applyChanges();
 
 		//Always first element is a semaphore
-		if( notification.tag >= static_cast<int>( m_callbacks.size() ) 
-			|| m_callbacks[notification.tag].empty() )
+		if( notification.tag >= static_cast<int>( m_callbacks.size() )
+				|| m_callbacks[notification.tag].empty() )
 		{
 			return;
 		}
@@ -172,9 +172,9 @@ public:
 			CCAssert( element.pCallback, "You don't set callback?" );
 			CCAssert( element.pIdentyfier->retainCount() > 0,
 					  "Probably you release object during notification or you simply didn't unregister your previous object. Look for this notification usage" );
-			CCAssert( ( notification.tag == static_cast<int>( element.tag ) ) 
-				? typeid( CallbackType ).hash_code() == element.hash
-				: true, "Callback has different params!" );
+			CCAssert( ( notification.tag == static_cast<int>( element.tag ) )
+					  ? typeid( CallbackType ).hash_code() == element.hash
+					  : true, "Callback has different params!" );
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
 
