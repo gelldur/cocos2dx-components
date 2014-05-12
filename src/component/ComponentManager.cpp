@@ -71,20 +71,20 @@ ComponentManager& ComponentManager::addComponent( Component* const pComponent, c
 
 void ComponentManager::removeAllComponents()
 {
-	m_componentTags.clear();
-
 	Component* pComponent = nullptr;
 
 	while( m_components.empty() == false )
 	{
 		pComponent = m_components.back();
 
-		m_nodeNotifier.notify( getNotificationOnBeforeRemoveFromComponentNode(), pComponent );
+		m_nodeNotifier.notify( getNotificationOnBeforeRemoveFromComponentNode(), pComponent,
+							   m_componentTags.back() );
 		//We must remove all potential listeners because when we are using notifier from
 		//ComponentNode so we don't have to unregister in their destructors
 		m_nodeNotifier.removeAllForObject( pComponent );
 
 		m_components.pop_back();
+		m_componentTags.pop_back();
 
 		pComponent->removeOwner();
 		pComponent->release();
@@ -151,7 +151,8 @@ void ComponentManager::removeComponentAtPosition( const int index )
 	assert( index < ( int ) m_components.size() );
 	Component* pComponent = m_components[index];
 
-	m_nodeNotifier.notify( getNotificationOnBeforeRemoveFromComponentNode(), pComponent );
+	m_nodeNotifier.notify( getNotificationOnBeforeRemoveFromComponentNode(), pComponent,
+						   m_componentTags[index] );
 	//We must remove all potential listeners because when we are using notifier from
 	//ComponentNode so we don't have to unregister in destructors
 	m_nodeNotifier.removeAllForObject( pComponent );

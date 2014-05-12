@@ -36,8 +36,9 @@ inline int getIdForType()
 
 /**
  * In first argument passed what component is goiing to be removed.
+ * In second argument we will pass tag of the component
  */
-MAKE_NOTIFICATION( OnBeforeRemoveFromComponentNode, Component* );
+MAKE_NOTIFICATION( OnBeforeRemoveFromComponentNode, Component*, int );
 
 class ComponentManager : public CCObject
 {
@@ -72,13 +73,13 @@ public:
 
 	Component* getComponent( const int tag );
 
-	CCNode* getWorkingNode()
+	CCNode* getWorkingNode()const
 	{
 		assert( m_pWorkingNode != nullptr );
 		return m_pWorkingNode;
 	}
 
-	Notifier& getNodeNotifier()
+	Notifier& getNodeNotifier()const
 	{
 		return m_nodeNotifier;
 	}
