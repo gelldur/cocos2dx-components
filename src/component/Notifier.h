@@ -21,7 +21,7 @@ using namespace std;
 
 #include "utils/Callback.h"
 
-#define MAKE_NOTIFICATION( NAME, args... ) inline const KoalaComponent::Notification<args>& getNotification##NAME(){static const KoalaComponent::Notification<args> variable; return variable;}
+#define MAKE_NOTIFICATION( NAME, args... ) inline const KoalaComponent::Notification<args>& getNotification##NAME(){static const KoalaComponent::Notification<args> variable(691283); return variable;}
 #define UNUSED_TAG 0
 
 //TODO 10 posible bug.
@@ -40,29 +40,32 @@ template<typename... Args>
 class Notification
 {
 public:
-	Notification() :
+
+	Notification( int dummyInt )
+		: //dummyInt used only for prevent creating unused notifications you should use MAKE_NOTIFICATION
 		tag( getUniqueId() )
-		, hash( typeid( Utils::Callback<void ( Args... )> ).hash_code() )
 	{
+		assert( dummyInt == 691283 );
 	}
 
 	Notification& operator= ( const Notification& ) = delete;
-	Notification& operator= ( Notification && ) = delete;
+	Notification& operator= ( Notification && notification )
+	{
+		tag = notification.tag;
+		return *this;
+	}
 
 	Notification( const Notification& notification ) :
 		tag( notification.tag )
-		, hash( notification.hash )
 	{
 	}
 
 	Notification( Notification&& notification ) :
 		tag( notification.tag )
-		, hash( notification.hash )
 	{
 	}
 
-	const int tag;
-	const size_t hash;
+	int tag;
 };
 
 template<typename NotificationType>
@@ -121,11 +124,7 @@ public:
 		CCAssert( callback.isCallable(), "Callback isn't set" );
 		CCAssert( callback.getObject(), "Notifier is't ready for lambdas" );
 
-		const size_t hashForSpecialization = typeid( CallbackType ).hash_code();
-		assert( notification.hash == hashForSpecialization );
-
 		Element element;
-		element.hash = hashForSpecialization;
 		element.tag = notification.tag;
 
 		const size_t sizeOfCallback = sizeof( CallbackType );
@@ -163,8 +162,7 @@ public:
 		size_t i = 0;
 		//Start working on this vector
 		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
-		assert( m_semaphores[notification.tag] == false );
-		m_semaphores[notification.tag] = true;
+		++m_semaphores[notification.tag];
 #endif
 
 		for( const Element& element : localVector )
@@ -172,9 +170,6 @@ public:
 			CCAssert( element.pCallback, "You don't set callback?" );
 			CCAssert( element.pIdentyfier->retainCount() > 0,
 					  "Probably you release object during notification or you simply didn't unregister your previous object. Look for this notification usage" );
-			CCAssert( ( notification.tag == static_cast<int>( element.tag ) )
-					  ? typeid( CallbackType ).hash_code() == element.hash
-					  : true, "Callback has different params!" );
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
 
@@ -190,6 +185,7 @@ public:
 				{
 					if( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
 					{
+						assert( changeElement.pIdentyfier->retainCount() > 0 );
 						CCAssert( false,
 								  "One of your listeners is removing another during this notification" );
 					}
@@ -202,8 +198,7 @@ public:
 #ifdef DEBUG
 		//Stop working on this vector
 		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
-		assert( m_semaphores[notification.tag] == true );
-		m_semaphores[notification.tag] = false;
+		--m_semaphores[notification.tag];
 #endif
 	}
 
@@ -264,12 +259,10 @@ private:
 	struct Element
 	{
 		Element() :
-			hash( 0 )
-			, tag( UNUSED_TAG )
+			tag( UNUSED_TAG )
 			, pCallback( nullptr )
 			, pIdentyfier( nullptr )
 		{}
-		size_t hash;
 		size_t tag;
 		void* pCallback;
 		CCObject* pIdentyfier;
@@ -334,15 +327,13 @@ private:
 	void removeForObject( CCObject* const pObject )
 	{
 #ifdef DEBUG
-		unsigned i = 0;
+		unsigned z = 0;
 #endif
 
 		for( auto && localVector : m_callbacks )
 		{
 #ifdef DEBUG
-			assert( i < m_semaphores.size() );
-			assert( m_semaphores[i] == false );
-			++i;
+			++z;
 #endif
 
 			for( int i = static_cast<int>( localVector.size() ) - 1 ; i > -1; --i )
@@ -351,6 +342,11 @@ private:
 
 				if( pObject == element.pIdentyfier )
 				{
+#ifdef DEBUG
+					assert( z < m_semaphores.size() );
+					assert( m_semaphores[z] == 0 );
+#endif
+
 					free( element.pCallback );
 					element.pCallback = nullptr;
 					//order isn't important
@@ -368,11 +364,10 @@ private:
 			return;
 		}
 
-		assert( tag >= 0 );
 		assert( tag <  m_callbacks.size() );
 #ifdef DEBUG
 		assert( tag < m_semaphores.size() );
-		assert( m_semaphores[tag] == false );
+		assert( m_semaphores[tag] == 0 );
 #endif
 		auto& localVector = m_callbacks[tag];
 
