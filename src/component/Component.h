@@ -23,19 +23,26 @@ public:
 	Component();
 	virtual ~Component();
 
-	ComponentManager& getOwner()
+	ComponentManager& getOwner()const
 	{
 		assert( getWorkingNode() );
-		assert( m_pOwner != nullptr );
+		assert( m_pOwner );
 		return *m_pOwner;
 	}
 
 
-	CCNode* getWorkingNode()
+	CCNode* getWorkingNode()const
 	{
 		assert( m_pOwner );
 		assert( m_pOwner->getWorkingNode() );
 		return m_pOwner->getWorkingNode();
+	}
+
+	Notifier& getNodeNotifier()const
+	{
+		assert( getWorkingNode() );
+		assert( m_pOwner );
+		return m_pOwner->getNodeNotifier();
 	}
 
 	bool isOwned() const
