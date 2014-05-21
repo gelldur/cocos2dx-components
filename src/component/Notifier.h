@@ -159,7 +159,7 @@ public:
 		const auto& localVector = m_callbacks[notification.tag];
 
 #ifdef DEBUG
-		size_t i = 0;
+		//size_t i = 0;
 		//Start working on this vector
 		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
 		++m_semaphores[notification.tag];
@@ -173,26 +173,26 @@ public:
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
 
-			//Check for use after release
-#ifdef DEBUG
-
-			if( i + 1 < localVector.size() )
-			{
-				++i;
-				auto& localElement = localVector[i];
-
-				for( auto && changeElement : m_changesStack )
-				{
-					if( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
-					{
-						assert( changeElement.pIdentyfier->retainCount() > 0 );
-						CCAssert( false,
-								  "One of your listeners is removing another during this notification" );
-					}
-				}
-			}
-
-#endif
+			//			//Check for use after release
+			//#ifdef DEBUG
+			//
+			//			if( i + 1 < localVector.size() )
+			//			{
+			//				++i;
+			//				auto& localElement = localVector[i];
+			//
+			//				for( auto && changeElement : m_changesStack )
+			//				{
+			//					if( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
+			//					{
+			//						assert( changeElement.pIdentyfier->retainCount() > 0 );
+			//						CCAssert( false,
+			//								  "One of your listeners is removing another during this notification" );
+			//					}
+			//				}
+			//			}
+			//
+			//#endif
 		}
 
 #ifdef DEBUG
