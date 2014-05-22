@@ -9,6 +9,7 @@
 #include "component/Notifier.h"
 
 using namespace KoalaComponent;
+USING_NS_CC;
 
 MAKE_NOTIFICATION( Test1 );
 MAKE_NOTIFICATION( Test2 );
@@ -21,25 +22,25 @@ MAKE_NOTIFICATION( Test4, float );
 #define OLD_NOTIFICATION_3 "c"
 #define OLD_NOTIFICATION_4 "d"
 
-struct TestClazz : CCObject
+struct TestClazz : Utils::BaseClass
 {
-	TestClazz(){}
+	TestClazz() {}
 
 	int deliveredCount = 0;
 
-	void onOldNotification( CCObject* pObject )
+	void onOldNotification( Utils::BaseClass* pObject )
 	{
 		++deliveredCount;
 	}
 
-	void onOldNotificationFloat( CCObject* pObject )
+	void onOldNotificationFloat( Utils::BaseClass* pObject )
 	{
 		//We use static cast for better performance
 		CCFloat* pFloat = static_cast<CCFloat*>( pObject );
 		deliveredCount += pFloat->getValue();
 	}
 
-	void onOldNotificationInt( CCObject* pObject )
+	void onOldNotificationInt( Utils::BaseClass* pObject )
 	{
 		//We use static cast for better performance
 		CCInteger* pInteger = static_cast<CCInteger*>( pObject );
@@ -110,7 +111,7 @@ TEST( Notifier, DISABLED_SpeedTestNotifyMultipleListeners )
 	CCNotificationCenter* pCenter =
 		CCNotificationCenter::sharedNotificationCenter();
 
-	vector<TestClazz*> listeners;
+	std::vector<TestClazz*> listeners;
 
 	for( int i = 0; i < listenersCount; ++i )
 	{
@@ -159,7 +160,7 @@ TEST( Notifier,
 	CCNotificationCenter* pCenter =
 		CCNotificationCenter::sharedNotificationCenter();
 
-	vector<TestClazz*> listeners;
+	std::vector<TestClazz*> listeners;
 
 	for( int i = 0; i < listenersCount; ++i )
 	{
