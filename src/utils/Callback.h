@@ -51,7 +51,7 @@ namespace Utils
 * If you are out of mana, see previous revisions that used std::function.
 */
 
-typedef cocos2d::CCObject BaseClass;
+using BaseClass = cocos2d::CCObject;
 
 template<typename T>
 class Callback;
@@ -59,6 +59,13 @@ class Callback;
 template<typename ReturnType, typename... Args>
 class Callback<ReturnType( Args... )>
 {
+private:
+	enum class PointerType : unsigned char
+	{
+		NonConstMethod,
+		ConstMethod,
+		Function
+	};
 
 public:
 
@@ -196,13 +203,6 @@ private:
 		ReturnType( BaseClass::*nonConstMethod )( Args... );
 		ReturnType( BaseClass::*constMethod )( Args... ) const;
 		ReturnType( *function )( Args... );
-	};
-
-	enum class PointerType : unsigned char
-	{
-		NonConstMethod,
-		ConstMethod,
-		Function
 	};
 
 	typedef std::pair<BaseClass*, MethodPointer> ObjectMethodPair;
