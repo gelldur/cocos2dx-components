@@ -1,15 +1,7 @@
-/*
- * Notifier.h
- *
- *  Created on: Dec 30, 2013
- *      Author: Dawid Drozd
- */
+#pragma once
 
-#ifndef NOTIFIER_H__
-#define NOTIFIER_H__
-
-#include "cocos2d.h"
-USING_NS_CC;
+#include "utils/Callback.h"
+#include "component/Notification.h"
 
 #include <vector>
 #include <deque>
@@ -17,12 +9,8 @@ USING_NS_CC;
 #include <cstdlib>
 #include <new>
 #include <functional>
-using namespace std;
-
-#include "utils/Callback.h"
 
 #define MAKE_NOTIFICATION( NAME, args... ) inline const KoalaComponent::Notification<args>& getNotification##NAME(){static const KoalaComponent::Notification<args> variable(691283); return variable;}
-#define UNUSED_TAG 0
 
 //TODO 10 posible bug.
 //We keep pointer to object that we want remove but sometime object can already die and other object can be at this pointer?
@@ -30,60 +18,12 @@ using namespace std;
 namespace KoalaComponent
 {
 
-inline int getUniqueId()
-{
-	static int id = UNUSED_TAG + 1;
-	return ++id;
-}
-
-template<typename... Args>
-class Notification
-{
-public:
-
-	Notification( int dummyInt )
-		: //dummyInt used only for prevent creating unused notifications you should use MAKE_NOTIFICATION
-		tag( getUniqueId() )
-	{
-		assert( dummyInt == 691283 );
-	}
-
-	Notification& operator= ( const Notification& ) = delete;
-	Notification& operator= ( Notification && notification )
-	{
-		tag = notification.tag;
-		return *this;
-	}
-
-	Notification( const Notification& notification ) :
-		tag( notification.tag )
-	{
-	}
-
-	Notification( Notification&& notification ) :
-		tag( notification.tag )
-	{
-	}
-
-	int tag;
-};
-
-template<typename NotificationType>
-struct notification_traits;
-
-template<typename... Args>
-struct notification_traits<Notification<Args...>>
-{
-	using callback_type = typename Utils::Callback<void ( Args... )>;
-};
-
 //Notifier can't retain listeners because sometimes we want unregister in destructor.
 class Notifier
 {
 public:
-	Notifier()
-	{
-	}
+	Notifier() {}
+
 	virtual ~Notifier()
 	{
 		for( auto && localVector : m_callbacks )
@@ -100,7 +40,6 @@ public:
 		{
 			free( element.pCallback );
 		}
-
 
 		m_changesStack.clear();
 	}
@@ -138,13 +77,17 @@ public:
 
 		//See how do we remove objects it should be faster
 		m_changesStack.emplace_front( element );
+
+#ifdef DEBUG
+		test_isElementDuplicated( element );
+#endif
 	}
 
 	template<typename NotificationType, typename... Args>
 	void notify( const NotificationType& notification, Args&& ... params )
 	{
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
-		assert( notification.tag > UNUSED_TAG );
+		assert( notification.tag > NotificationConst::UNUSED_TAG );
 
 		applyChanges();
 
@@ -159,7 +102,6 @@ public:
 		const auto& localVector = m_callbacks[notification.tag];
 
 #ifdef DEBUG
-		//size_t i = 0;
 		//Start working on this vector
 		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
 		++m_semaphores[notification.tag];
@@ -169,30 +111,10 @@ public:
 		{
 			CCAssert( element.pCallback, "You don't set callback?" );
 			CCAssert( element.pIdentyfier->retainCount() > 0,
-					  "Probably you release object during notification or you simply didn't unregister your previous object. Look for this notification usage" );
+					  "Probably you release object during notification or you simply didn't "
+					  "unregister your previous object. Look for this notification usage" );
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
-
-			//			//Check for use after release
-			//#ifdef DEBUG
-			//
-			//			if( i + 1 < localVector.size() )
-			//			{
-			//				++i;
-			//				auto& localElement = localVector[i];
-			//
-			//				for( auto && changeElement : m_changesStack )
-			//				{
-			//					if( changeElement.pCallback == nullptr && changeElement.pIdentyfier == localElement.pIdentyfier )
-			//					{
-			//						assert( changeElement.pIdentyfier->retainCount() > 0 );
-			//						CCAssert( false,
-			//								  "One of your listeners is removing another during this notification" );
-			//					}
-			//				}
-			//			}
-			//
-			//#endif
 		}
 
 #ifdef DEBUG
@@ -202,7 +124,7 @@ public:
 #endif
 	}
 
-	void removeAllForObject( CCObject* const pObject )
+	void removeAllForObject( Utils::BaseClass* const pObject )
 	{
 		assert( pObject );
 		Element element;
@@ -214,29 +136,13 @@ public:
 	}
 
 	template<typename... Args>
-	void removeNotification( CCObject* pObject,
-							 const Notification<Args...>& notification )
+	void removeNotification( Utils::BaseClass* pObject, const Notification<Args...>& notification )
 	{
 		Element element;
 		element.pIdentyfier = pObject;
 		element.tag = notification.tag;
 
 		m_changesStack.emplace_front( element );
-	}
-
-	/**
-	 * For tests only
-	 * @param tag of the notification
-	 * @return count of listeners
-	 */
-	size_t getListenersCount( size_t tag )
-	{
-		if( tag >= m_callbacks.size() )
-		{
-			return 0;
-		}
-
-		return m_callbacks[tag].size();
 	}
 
 #ifdef DEBUG
@@ -252,20 +158,30 @@ public:
 
 		return false;
 	}
-#endif
 
+	size_t getListenersCount( size_t tag )
+	{
+		if( tag >= m_callbacks.size() )
+		{
+			return 0;
+		}
+
+		return m_callbacks[tag].size();
+	}
+#endif
+	////////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
 	struct Element
 	{
-		Element() :
-			tag( UNUSED_TAG )
-			, pCallback( nullptr )
-			, pIdentyfier( nullptr )
-		{}
-		size_t tag;
-		void* pCallback;
-		CCObject* pIdentyfier;
+		size_t tag = NotificationConst::UNUSED_TAG;
+		void* pCallback = nullptr;
+		Utils::BaseClass* pIdentyfier = nullptr;
+
+		bool isSignedAsToDelete()const
+		{
+			return pCallback == nullptr;
+		}
 	};
 
 	/**
@@ -273,11 +189,11 @@ private:
 	 * If tag != UNUSED_TAG it means that we want remove elements only for such tag
 	 * Else we remove all elements for Element::pIdentyfier
 	 */
-	deque<Element> m_changesStack;
+	std::deque<Element> m_changesStack;
 
-	vector<vector <Element>> m_callbacks;
+	std::vector<std::vector <Element>> m_callbacks;
 #ifdef DEBUG
-	vector<char> m_semaphores;
+	std::vector<char> m_semaphores;
 #endif
 
 	void applyChanges()
@@ -292,11 +208,11 @@ private:
 			const Element& elementChanges = m_changesStack.back();
 
 			//It means we want delete it
-			if( elementChanges.pCallback == nullptr )
+			if( elementChanges.isSignedAsToDelete() )
 			{
 				assert( elementChanges.pIdentyfier );
 
-				if( elementChanges.tag == UNUSED_TAG )
+				if( elementChanges.tag == NotificationConst::UNUSED_TAG )
 				{
 					removeForObject( elementChanges.pIdentyfier );
 				}
@@ -324,7 +240,7 @@ private:
 		}
 	}
 
-	void removeForObject( CCObject* const pObject )
+	void removeForObject( Utils::BaseClass* const pObject )
 	{
 #ifdef DEBUG
 		unsigned z = 0;
@@ -346,7 +262,6 @@ private:
 					assert( z < m_semaphores.size() );
 					assert( m_semaphores[z] == 0 );
 #endif
-
 					free( element.pCallback );
 					element.pCallback = nullptr;
 					//order isn't important
@@ -357,7 +272,7 @@ private:
 		}
 	}
 
-	void removeForTag( CCObject* const pObject, size_t tag )
+	void removeForTag( Utils::BaseClass* const pObject, size_t tag )
 	{
 		if( tag >= m_callbacks.size() )
 		{
@@ -385,8 +300,54 @@ private:
 			}
 		}
 	}
+
+	void test_isElementDuplicated( Element& element )
+	{
+		int balance = 0;//Because we add it already 1 line up
+
+		for( auto && elementLocal : m_changesStack )
+		{
+			if( elementLocal.pIdentyfier == element.pIdentyfier
+					&& ( elementLocal.tag == element.tag
+						 || elementLocal.tag == NotificationConst::UNUSED_TAG ) )
+			{
+				if( elementLocal.isSignedAsToDelete() )
+				{
+					--balance;
+
+					if( balance < 0 )
+					{
+						balance = 0;
+					}
+				}
+				else
+				{
+					++balance;
+				}
+			}
+		}
+
+		assert( balance <= 1 &&
+				"You already add this notification it is waiting on changes stack."
+				"You should remove your previous listener" );
+
+		//Always first element is a semaphore
+		if( element.tag >= m_callbacks.size()
+				|| m_callbacks[element.tag].empty() )
+		{
+			return;
+		}
+
+		const auto& localVector = m_callbacks[element.tag];
+
+		for( const Element& elementLocal : localVector )
+		{
+			if( elementLocal.pIdentyfier == element.pIdentyfier )
+			{
+				assert( false && "You already add this notification. You should remove your previous listener" );
+			}
+		}
+	}
 };
 
 } /* namespace KoalaComponent */
-#undef UNUSED_TAG
-#endif /* NOTIFIER_H__ */

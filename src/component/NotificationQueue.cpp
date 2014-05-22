@@ -6,6 +6,7 @@
  */
 
 #include "component/NotificationQueue.h"
+USING_NS_CC;
 
 namespace KoalaComponent
 {

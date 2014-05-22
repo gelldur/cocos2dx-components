@@ -15,24 +15,12 @@ USING_NS_CC;
 using namespace std;
 
 #include "component/Notifier.h"
+#include "utils/IdGenerator.h"
 
 namespace KoalaComponent
 {
 
 class Component;
-
-inline int _UniqueComponentIdNonDeterministic()
-{
-	static int id = 1001;
-	return ++id;
-}
-
-template <typename Type>
-inline int getIdForType()
-{
-	static int id_for_type = _UniqueComponentIdNonDeterministic();
-	return id_for_type;
-}
 
 /**
  * In first argument passed what component is goiing to be removed.

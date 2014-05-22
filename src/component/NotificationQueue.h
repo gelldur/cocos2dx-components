@@ -40,7 +40,7 @@ struct QueuedNotification
 	Notification<> notification;
 };
 
-class NotificationQueue: public CCObject
+class NotificationQueue: public Utils::BaseClass
 {
 public:
 	NotificationQueue();
