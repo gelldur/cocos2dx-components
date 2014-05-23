@@ -44,6 +44,16 @@ struct TestClazz : Utils::BaseClass
 		++deliveredCount;
 	}
 
+	void onDeliverNotificationVerB()
+	{
+		++deliveredCount;
+	}
+
+	int onDeliverNotificationVerC(int a,int b)
+	{
+		return ++deliveredCount;
+	}
+
 	void onDeliverNotification2( float value )
 	{
 		deliveredCount += value;
@@ -63,6 +73,16 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase2 )
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 	notifier.removeNotification( &testClazz, getNotificationTest1() );
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+}
+
+TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase12 )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	//If we have conflict we must specify third argument
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotificationVerB } );
 }
 
 TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase3 )
@@ -118,6 +138,61 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase7 )
 	notifier.removeAllForObject( &testClazz );
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 	notifier.addNotification( getNotificationTest2(), { &testClazz, &TestClazz::onDeliverNotification } );
+}
+
+TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase9 )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+	notifier.notify(getNotificationTest1());
+
+	notifier.removeAllForObject( &testClazz );
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+}
+
+TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase10 )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+	notifier.notify(getNotificationTest1());
+
+	notifier.removeAllForObject( &testClazz );
+	notifier.notify(getNotificationTest1());
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+}
+
+TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase11 )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+	notifier.notify(getNotificationTest1());
+
+	notifier.removeAllForObject( &testClazz );
+	notifier.notify(getNotificationTest1());
+	notifier.removeAllForObject( &testClazz );
+	notifier.notify(getNotificationTest1());
+	notifier.removeAllForObject( &testClazz );
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+}
+
+TEST( Notifier, DISABLED_TestOfNotificationNoMultipleNotificationsForSingleObjectCase8 )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
+	notifier.notify(getNotificationTest1());
+
+	//It should crash
+	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 }
 
 TEST( Notifier, DISABLED_TestOfNotificationNoMultipleNotificationsForSingleObjectCase1 )
