@@ -2,11 +2,10 @@
 * Callback.h
 *
 *  Created on: Dec 28, 2013
-*      Author: Jakub 'kuhar' Kuderski
+*      Author: Jakub 'kuhar' Kuderski , Dawid Drozd
 */
 
-#ifndef KOALA_CALLBACK_H_
-#define KOALA_CALLBACK_H_
+#pragma once
 
 #include <vector>
 #include <utility>
@@ -196,6 +195,26 @@ public:
 		}
 	}
 
+#ifdef DEBUG
+#pragma GCC diagnostic push  // require GCC 4.6
+#pragma GCC diagnostic ignored "-Wcast-qual"
+
+	//I know this isn't good way to do this but i don't have any other option for now
+	void* getFunctionPointer()const
+	{
+		if( m_pointerType == PointerType::NonConstMethod )
+		{
+			return (void*&)m_callableObject.second.nonConstMethod;
+		}
+		if( m_pointerType == PointerType::ConstMethod )
+		{
+			return (void*&)m_callableObject.second.nonConstMethod;
+		}
+		return (void*&)m_callableObject.second.function;
+	}
+#pragma GCC diagnostic pop   // require GCC 4.6
+#endif
+
 private:
 
 	union MethodPointer
@@ -233,6 +252,3 @@ Callback<ReturnType( Args... )> makeCallback( ReturnType( *function )(
 }
 
 } // namespace Utils
-
-
-#endif /* KOALA_CALLBACK_H_ */

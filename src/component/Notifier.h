@@ -67,13 +67,15 @@ public:
 		element.tag = notification.tag;
 
 		const size_t sizeOfCallback = sizeof( CallbackType );
-		CallbackType* pCallback = static_cast<CallbackType*>( malloc(
-									  sizeOfCallback ) );
+		CallbackType* pCallback = static_cast<CallbackType*>( malloc(sizeOfCallback ) );
 		//Placement new
 		new( pCallback ) CallbackType( callback );
 
 		element.pCallback = pCallback;
 		element.pIdentyfier = callback.getObject();
+#ifdef DEBUG
+		element.pFunctionPointer = callback.getFunctionPointer();
+#endif
 
 		//See how do we remove objects it should be faster
 		m_changesStack.emplace_front( element );
@@ -113,8 +115,17 @@ public:
 			CCAssert( element.pIdentyfier->retainCount() > 0,
 					  "Probably you release object during notification or you simply didn't "
 					  "unregister your previous object. Look for this notification usage" );
+#ifdef DEBUG
+			element.pIdentyfier->retain();
+			const int size = localVector.size();
+#endif
+
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
+#ifdef DEBUG
+			assert(size == localVector.size() && "Vector size changed during this notification!");
+			element.pIdentyfier->release();
+#endif
 		}
 
 #ifdef DEBUG
@@ -174,9 +185,19 @@ private:
 
 	struct Element
 	{
-		size_t tag = NotificationConst::UNUSED_TAG;
-		void* pCallback = nullptr;
+		int tag = NotificationConst::UNUSED_TAG;
 		Utils::BaseClass* pIdentyfier = nullptr;
+		void* pCallback = nullptr;
+
+#ifdef DEBUG
+		/**
+		 * I know that comparing function pointers can cause UB but we do
+		 * it only in DEBUG for more safety
+		 */
+		const void* pFunctionPointer = nullptr;
+#endif
+
+
 
 		bool isSignedAsToDelete()const
 		{
@@ -224,7 +245,7 @@ private:
 			else
 			{
 				//If it isn't to delete we probably want to add
-				if( m_callbacks.size() <= elementChanges.tag )
+				if( (int)m_callbacks.size() <= elementChanges.tag )
 				{
 					m_callbacks.resize( elementChanges.tag + 64 );
 #ifdef DEBUG
@@ -232,7 +253,12 @@ private:
 #endif
 				}
 
-				assert( elementChanges.tag < m_callbacks.size() );
+#ifdef DEBUG
+				assert( elementChanges.tag < (int)m_semaphores.size() );
+				assert( m_semaphores[elementChanges.tag] == 0 );
+#endif
+
+				assert( elementChanges.tag < (int)m_callbacks.size() );
 				m_callbacks[elementChanges.tag].emplace_back( elementChanges );
 			}
 
@@ -301,6 +327,7 @@ private:
 		}
 	}
 
+#ifdef DEBUG
 	void test_isElementDuplicated( Element& element )
 	{
 		int balance = 0;//Because we add it already 1 line up
@@ -309,7 +336,7 @@ private:
 		{
 			if( elementLocal.pIdentyfier == element.pIdentyfier
 					&& ( elementLocal.tag == element.tag
-						 || elementLocal.tag == NotificationConst::UNUSED_TAG ) )
+						 || elementLocal.tag == NotificationConst::UNUSED_TAG ))
 			{
 				if( elementLocal.isSignedAsToDelete() )
 				{
@@ -320,7 +347,7 @@ private:
 						balance = 0;
 					}
 				}
-				else
+				else if( elementLocal.pFunctionPointer == element.pFunctionPointer)
 				{
 					++balance;
 				}
@@ -332,7 +359,7 @@ private:
 				"You should remove your previous listener" );
 
 		//Always first element is a semaphore
-		if( element.tag >= m_callbacks.size()
+		if( element.tag >= (int)m_callbacks.size()
 				|| m_callbacks[element.tag].empty() )
 		{
 			return;
@@ -342,12 +369,20 @@ private:
 
 		for( const Element& elementLocal : localVector )
 		{
-			if( elementLocal.pIdentyfier == element.pIdentyfier )
+			if( elementLocal.pIdentyfier == element.pIdentyfier
+					&& elementLocal.tag == element.tag
+					&& elementLocal.pFunctionPointer == element.pFunctionPointer)
 			{
-				assert( false && "You already add this notification. You should remove your previous listener" );
+				++balance;
 			}
 		}
+
+		assert( balance <= 1 &&
+						"You already add this notification it is waiting on changes stack."
+						"You should remove your previous listener" );
 	}
+#endif
 };
+
 
 } /* namespace KoalaComponent */
