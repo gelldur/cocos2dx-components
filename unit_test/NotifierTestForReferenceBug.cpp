@@ -41,25 +41,25 @@ struct TestClazzRef : Utils::BaseClass
 
 	void onDeliverNotification()
 	{
-		pNotifier->addNotification(getNotificationTest1(),{this,&TestClazzRef::onDeliverNotification3});
-		pNotifier->addNotification(getNotificationTest1(),{this,&TestClazzRef::onDeliverNotification4});
-		pNotifier->notify(getNotificationTest2());
+		pNotifier->addNotification( getNotificationTest1(), {this, &TestClazzRef::onDeliverNotification3} );
+		pNotifier->addNotification( getNotificationTest1(), {this, &TestClazzRef::onDeliverNotification4} );
+		pNotifier->notify( getNotificationTest2() );
 
-		CCLog("%s",__FUNCTION__);
+		CCLog( "%s", __FUNCTION__ );
 	}
 
 	void onDeliverNotification2()
 	{
 		//Calling this should cause error in current version
-		CCLog("%s",__FUNCTION__);
+		CCLog( "%s", __FUNCTION__ );
 	}
 	void onDeliverNotification3()
 	{
-		CCLog("%s",__FUNCTION__);
+		CCLog( "%s", __FUNCTION__ );
 	}
 	void onDeliverNotification4()
 	{
-		CCLog("%s",__FUNCTION__);
+		CCLog( "%s", __FUNCTION__ );
 	}
 
 	Notifier* pNotifier = nullptr;
@@ -72,9 +72,9 @@ TEST( Notifier, DISABLED_TestOfNotificationBugWithReference )
 	testClazz.pNotifier = &notifier;
 
 	//It should crash
-	notifier.addNotification(getNotificationTest1(),{&testClazz,&TestClazzRef::onDeliverNotification});
+	notifier.addNotification( getNotificationTest1(), {&testClazz, &TestClazzRef::onDeliverNotification} );
 
-	notifier.notify(getNotificationTest1());
-	notifier.notify(getNotificationTest2());
+	notifier.notify( getNotificationTest1() );
+	notifier.notify( getNotificationTest2() );
 }
 

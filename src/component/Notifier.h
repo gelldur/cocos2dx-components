@@ -67,7 +67,7 @@ public:
 		element.tag = notification.tag;
 
 		const size_t sizeOfCallback = sizeof( CallbackType );
-		CallbackType* pCallback = static_cast<CallbackType*>( malloc(sizeOfCallback ) );
+		CallbackType* pCallback = static_cast<CallbackType*>( malloc( sizeOfCallback ) );
 		//Placement new
 		new( pCallback ) CallbackType( callback );
 
@@ -123,7 +123,7 @@ public:
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
 #ifdef DEBUG
-			assert(size == localVector.size() && "Vector size changed during this notification!");
+			assert( size == localVector.size() && "Vector size changed during this notification!" );
 			element.pIdentyfier->release();
 #endif
 		}
@@ -245,7 +245,7 @@ private:
 			else
 			{
 				//If it isn't to delete we probably want to add
-				if( (int)m_callbacks.size() <= elementChanges.tag )
+				if( ( int )m_callbacks.size() <= elementChanges.tag )
 				{
 					m_callbacks.resize( elementChanges.tag + 64 );
 #ifdef DEBUG
@@ -254,11 +254,11 @@ private:
 				}
 
 #ifdef DEBUG
-				assert( elementChanges.tag < (int)m_semaphores.size() );
+				assert( elementChanges.tag < ( int )m_semaphores.size() );
 				assert( m_semaphores[elementChanges.tag] == 0 );
 #endif
 
-				assert( elementChanges.tag < (int)m_callbacks.size() );
+				assert( elementChanges.tag < ( int )m_callbacks.size() );
 				m_callbacks[elementChanges.tag].emplace_back( elementChanges );
 			}
 
@@ -336,7 +336,7 @@ private:
 		{
 			if( elementLocal.pIdentyfier == element.pIdentyfier
 					&& ( elementLocal.tag == element.tag
-						 || elementLocal.tag == NotificationConst::UNUSED_TAG ))
+						 || elementLocal.tag == NotificationConst::UNUSED_TAG ) )
 			{
 				if( elementLocal.isSignedAsToDelete() )
 				{
@@ -347,7 +347,7 @@ private:
 						balance = 0;
 					}
 				}
-				else if( elementLocal.pFunctionPointer == element.pFunctionPointer)
+				else if( elementLocal.pFunctionPointer == element.pFunctionPointer )
 				{
 					++balance;
 				}
@@ -359,7 +359,7 @@ private:
 				"You should remove your previous listener" );
 
 		//Always first element is a semaphore
-		if( element.tag >= (int)m_callbacks.size()
+		if( element.tag >= ( int )m_callbacks.size()
 				|| m_callbacks[element.tag].empty() )
 		{
 			return;
@@ -371,15 +371,15 @@ private:
 		{
 			if( elementLocal.pIdentyfier == element.pIdentyfier
 					&& elementLocal.tag == element.tag
-					&& elementLocal.pFunctionPointer == element.pFunctionPointer)
+					&& elementLocal.pFunctionPointer == element.pFunctionPointer )
 			{
 				++balance;
 			}
 		}
 
 		assert( balance <= 1 &&
-						"You already add this notification it is waiting on changes stack."
-						"You should remove your previous listener" );
+				"You already add this notification it is waiting on changes stack."
+				"You should remove your previous listener" );
 	}
 #endif
 };

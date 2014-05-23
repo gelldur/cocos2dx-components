@@ -204,13 +204,15 @@ public:
 	{
 		if( m_pointerType == PointerType::NonConstMethod )
 		{
-			return (void*&)m_callableObject.second.nonConstMethod;
+			return ( void*& )m_callableObject.second.nonConstMethod;
 		}
+
 		if( m_pointerType == PointerType::ConstMethod )
 		{
-			return (void*&)m_callableObject.second.nonConstMethod;
+			return ( void*& )m_callableObject.second.nonConstMethod;
 		}
-		return (void*&)m_callableObject.second.function;
+
+		return ( void*& )m_callableObject.second.function;
 	}
 #pragma GCC diagnostic pop   // require GCC 4.6
 #endif

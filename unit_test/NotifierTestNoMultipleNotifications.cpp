@@ -49,7 +49,7 @@ struct TestClazz : Utils::BaseClass
 		++deliveredCount;
 	}
 
-	int onDeliverNotificationVerC(int a,int b)
+	int onDeliverNotificationVerC( int a, int b )
 	{
 		return ++deliveredCount;
 	}
@@ -146,7 +146,7 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase9 )
 	TestClazz testClazz;
 
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 
 	notifier.removeAllForObject( &testClazz );
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
@@ -158,10 +158,10 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase10 )
 	TestClazz testClazz;
 
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 
 	notifier.removeAllForObject( &testClazz );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 }
 
@@ -171,12 +171,12 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase11 )
 	TestClazz testClazz;
 
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 
 	notifier.removeAllForObject( &testClazz );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 	notifier.removeAllForObject( &testClazz );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 	notifier.removeAllForObject( &testClazz );
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 
@@ -189,7 +189,7 @@ TEST( Notifier, DISABLED_TestOfNotificationNoMultipleNotificationsForSingleObjec
 	TestClazz testClazz;
 
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
-	notifier.notify(getNotificationTest1());
+	notifier.notify( getNotificationTest1() );
 
 	//It should crash
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
