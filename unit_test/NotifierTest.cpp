@@ -92,8 +92,8 @@ TEST( Notifier, TestOfNotification )
 	notifier.notify( getNotificationTest1() );
 	EXPECT_EQ( 4, testClazz.deliveredCount );
 
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.removeNotification( &testClazz, getNotificationTest1() );
 	notifier.notify( getNotificationTest1() );
@@ -108,13 +108,13 @@ TEST( Notifier, TestOfNotification )
 							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
 
 	//Here listeners are not still added because before notifications we apply changes
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
 
 	notifier.notify( getNotificationTest1() );
 
 	//Changes should be applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	EXPECT_EQ( 5, testClazz.deliveredCount );
 
@@ -128,33 +128,33 @@ TEST( Notifier, TestOfNotification )
 	notifier.notify( getNotificationTest2() );
 	EXPECT_EQ( 7, testClazz.deliveredCount );
 
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.addNotification( getNotificationTest1(),
 							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
 
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.notify( getNotificationTest1() );
 
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	EXPECT_EQ( 8, testClazz.deliveredCount );
 
 	notifier.removeAllForObject( &testClazz );
 
 	//Changes still not applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.notify( getNotificationTest1() );
 	EXPECT_EQ( 8, testClazz.deliveredCount );
 
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
 }
 
 TEST( Notifier, TestOfNotificationChangesStack )
@@ -167,33 +167,33 @@ TEST( Notifier, TestOfNotificationChangesStack )
 	notifier.addNotification( getNotificationTest2(),
 							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
 
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	EXPECT_EQ( 0, testClazz.deliveredCount );
 	notifier.notify( getNotificationTest1() );
 	EXPECT_EQ( 1, testClazz.deliveredCount );
 
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.removeAllForObject( &testClazz );
 
 	//Changes still not applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.removeAllForObject( &testClazz );
 
 	//Changes still not applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.notify( getNotificationTest3(), 0x01 );
 
 	//changes should be applied
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
 }
 
 TEST( Notifier, DISABLED_TestOfNotificationChangesStackDoubleCommands )
@@ -206,27 +206,27 @@ TEST( Notifier, DISABLED_TestOfNotificationChangesStackDoubleCommands )
 	notifier.addNotification( getNotificationTest2(),
 							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
 
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	EXPECT_EQ( 0, testClazz.deliveredCount );
 	notifier.notify( getNotificationTest1() );
 	EXPECT_EQ( 1, testClazz.deliveredCount );
 
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.removeAllForObject( &testClazz );
 
 	//Changes still not applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.removeAllForObject( &testClazz );
 
 	//Changes still not applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.addNotification( getNotificationTest1(),
 							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
@@ -234,14 +234,14 @@ TEST( Notifier, DISABLED_TestOfNotificationChangesStackDoubleCommands )
 							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
 
 	//Changes still not applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	notifier.notify( getNotificationTest3(), 0x01 );
 
 	//changes should be applied
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 
 	EXPECT_EQ( 1, testClazz.deliveredCount );
 	notifier.notify( getNotificationTest1() );
@@ -252,13 +252,13 @@ TEST( Notifier, DISABLED_TestOfNotificationChangesStackDoubleCommands )
 	//Now we have double notification
 	notifier.notify( getNotificationTest1() );
 	EXPECT_EQ( 4, testClazz.deliveredCount );
-	EXPECT_EQ( 2, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 2u, notifier.getListenersCount( getNotificationTest1().tag ) );
 
 	notifier.removeNotification( &testClazz, getNotificationTest1() );
 	notifier.notify( getNotificationTest1() );
 	EXPECT_EQ( 4, testClazz.deliveredCount );
-	EXPECT_EQ( 0, notifier.getListenersCount( getNotificationTest1().tag ) );
-	EXPECT_EQ( 1, notifier.getListenersCount( getNotificationTest2().tag ) );
+	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
+	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
 }
 
 
@@ -281,7 +281,7 @@ public:
 
 	void onCall()
 	{
-		EXPECT_GT( retainCount() , 0 );  //This object is released?
+		EXPECT_GT( retainCount() , 0u );  //This object is released?
 		CCLOG( "Hello!" );
 	}
 
@@ -301,21 +301,21 @@ TEST( Notifier, DISABLED_TestOfNotificationUseAfterRelease )
 	TestClazzReleased* pReleasedNode = new TestClazzReleased( notifier );
 	pReleasedNode->init();
 
-	EXPECT_EQ( 1, pReleasedNode->retainCount() );
-	EXPECT_EQ( 1, pHolder->retainCount() );
+	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
+	EXPECT_EQ( 1u, pHolder->retainCount() );
 
 	pHolder->addChild( pReleasedNode );
 
-	EXPECT_EQ( 2, pReleasedNode->retainCount() );
-	EXPECT_EQ( 1, pHolder->retainCount() );
+	EXPECT_EQ( 2u, pReleasedNode->retainCount() );
+	EXPECT_EQ( 1u, pHolder->retainCount() );
 
 	pReleasedNode->release();
 
-	EXPECT_EQ( 1, pReleasedNode->retainCount() );
-	EXPECT_EQ( 1, pHolder->retainCount() );
+	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
+	EXPECT_EQ( 1u, pHolder->retainCount() );
 
-	EXPECT_EQ( 1, pReleasedNode->retainCount() );
-	EXPECT_EQ( 1, pHolder->retainCount() );
+	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
+	EXPECT_EQ( 1u, pHolder->retainCount() );
 
 	//Now when we notify we have problem. We have use after release.
 	//It should crash

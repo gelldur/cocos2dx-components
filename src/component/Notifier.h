@@ -123,7 +123,7 @@ public:
 			static_cast<CallbackType*>( element.pCallback )->call(
 				std::forward<Args> ( params )... );
 #ifdef DEBUG
-			assert( size == localVector.size() && "Vector size changed during this notification!" );
+			assert( size == (int) localVector.size() && "Vector size changed during this notification!" );
 			element.pIdentyfier->release();
 #endif
 		}
