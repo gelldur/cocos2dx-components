@@ -61,6 +61,7 @@ class Callback<ReturnType( Args... )>
 private:
 	enum class PointerType : unsigned char
 	{
+		Unknown,
 		NonConstMethod,
 		ConstMethod,
 		Function
@@ -68,10 +69,7 @@ private:
 
 public:
 
-	Callback() :
-		m_pointerType( PointerType::NonConstMethod )
-	{
-	}
+	Callback() = default;
 
 	template<typename ClassType, typename MethodType>
 	Callback( ClassType* pObject, const MethodType& method ) :
@@ -170,6 +168,13 @@ public:
 	ReturnType call( CallArgs&& ... params ) const
 	{
 		CALLBACK_ASSERT( isCallable() );
+		CALLBACK_ASSERT( m_pointerType != PointerType::Unknown );
+
+		if( m_pointerType == PointerType::NonConstMethod )
+		{
+			return ( m_callableObject.first->*m_callableObject.second.nonConstMethod )(
+					   std::forward<CallArgs> ( params )... );
+		}
 
 		if( m_pointerType == PointerType::ConstMethod )
 		{
@@ -177,11 +182,6 @@ public:
 					   std::forward<CallArgs> ( params )... );
 		}
 
-		else if( m_pointerType == PointerType::NonConstMethod )
-		{
-			return ( m_callableObject.first->*m_callableObject.second.nonConstMethod )(
-					   std::forward<CallArgs> ( params )... );
-		}
 
 		return ( *m_callableObject.second.function )( std::forward<CallArgs> ( params )... );
 	}
@@ -228,7 +228,7 @@ private:
 
 	typedef std::pair<BaseClass*, MethodPointer> ObjectMethodPair;
 	ObjectMethodPair m_callableObject;
-	PointerType m_pointerType;
+	PointerType m_pointerType = PointerType::Unknown;
 };
 
 

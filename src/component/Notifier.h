@@ -26,22 +26,10 @@ public:
 
 	virtual ~Notifier()
 	{
-		for( auto && localVector : m_callbacks )
+		for( auto && pVector : m_callbacks )
 		{
-			for( auto && element : localVector )
-			{
-				free( element.pCallback );
-			}
+			delete pVector;
 		}
-
-		m_callbacks.clear();
-
-		for( const Element& element : m_changesStack )
-		{
-			free( element.pCallback );
-		}
-
-		m_changesStack.clear();
 	}
 
 	Notifier& operator= ( const Notifier& ) = delete;
@@ -63,26 +51,26 @@ public:
 		CCAssert( callback.isCallable(), "Callback isn't set" );
 		CCAssert( callback.getObject(), "Notifier is't ready for lambdas" );
 
-		Element element;
-		element.tag = notification.tag;
+		if( notification.tag >= ( int )m_callbacks.size() )
+		{
+			m_callbacks.resize( notification.tag + 64, nullptr );
+		}
 
-		const size_t sizeOfCallback = sizeof( CallbackType );
-		CallbackType* pCallback = static_cast<CallbackType*>( malloc( sizeOfCallback ) );
-		//Placement new
-		new( pCallback ) CallbackType( callback );
+		if( m_callbacks[notification.tag] == nullptr )
+		{
+			auto pVector = new VectorImpl<CallbackType>();
+			pVector->vector.reserve( 64 );
 
-		element.pCallback = pCallback;
-		element.pIdentyfier = callback.getObject();
-#ifdef DEBUG
-		element.pFunctionPointer = callback.getFunctionPointer();
-#endif
+			m_callbacks[notification.tag] = pVector;
+		}
 
-		//See how do we remove objects it should be faster
-		m_changesStack.emplace_front( element );
+		auto pVector = static_cast<VectorImpl<CallbackType>*>( m_callbacks[notification.tag] );
 
 #ifdef DEBUG
-		test_isElementDuplicated( element );
+		pVector->checkForDuplicates( callback.getObject(), callback.getFunctionPointer() );
 #endif
+
+		pVector->vector.emplace_back( Element<CallbackType>( callback ) );
 	}
 
 	template<typename NotificationType, typename... Args>
@@ -91,297 +79,127 @@ public:
 		using CallbackType = typename notification_traits<NotificationType>::callback_type;
 		assert( notification.tag > NotificationConst::UNUSED_TAG );
 
-		applyChanges();
-
-		//Always first element is a semaphore
 		if( notification.tag >= static_cast<int>( m_callbacks.size() )
-				|| m_callbacks[notification.tag].empty() )
+				|| m_callbacks[notification.tag] == nullptr )
 		{
 			return;
 		}
 
-		assert( notification.tag < static_cast<int>( m_callbacks.size() ) );
-		const auto& localVector = m_callbacks[notification.tag];
+		assert( dynamic_cast<VectorImpl<CallbackType>*>( m_callbacks[notification.tag] ) != nullptr );
+		auto pVector = static_cast<VectorImpl<CallbackType>*>( m_callbacks[notification.tag] );
 
-#ifdef DEBUG
-		//Start working on this vector
-		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
-		++m_semaphores[notification.tag];
-#endif
-
-		for( const Element& element : localVector )
+		for( int i = static_cast<int>( pVector->vector.size() ) - 1; i > -1; --i )
 		{
-			CCAssert( element.pCallback, "You don't set callback?" );
-			CCAssert( element.pIdentyfier->retainCount() > 0,
-					  "Probably you release object during notification or you simply didn't "
-					  "unregister your previous object. Look for this notification usage" );
-#ifdef DEBUG
-			element.pIdentyfier->retain();
-			const int size = localVector.size();
-#endif
+			auto& element = pVector->vector[i];
 
-			static_cast<CallbackType*>( element.pCallback )->call(
-				std::forward<Args> ( params )... );
-#ifdef DEBUG
-			assert( size == localVector.size() && "Vector size changed during this notification!" );
-			element.pIdentyfier->release();
-#endif
+			if( element.toRemove == false )
+			{
+				CCAssert( element.callback.isCallable(), "You don't set callback?" );
+				CCAssert( element.callback.getObject()->retainCount() > 0,
+						  "Probably you release object during notification or you simply didn't "
+						  "unregister your previous object. Look for this notification usage" );
+
+				element.callback.call( std::forward<Args> ( params )... );
+			}
+			else
+			{
+				std::swap( pVector->vector[i], pVector->vector.back() );
+				pVector->vector.pop_back();
+			}
 		}
-
-#ifdef DEBUG
-		//Stop working on this vector
-		assert( notification.tag < static_cast<int>( m_semaphores.size() ) );
-		--m_semaphores[notification.tag];
-#endif
 	}
 
 	void removeAllForObject( Utils::BaseClass* const pObject )
 	{
-		assert( pObject );
-		Element element;
-		element.pIdentyfier = pObject;
-
-		//See how do we remove objects it should be faster
-		//We add objects at front and remove them on end
-		m_changesStack.emplace_front( element );
+		for( auto && pVector : m_callbacks )
+		{
+			if( pVector != nullptr )
+			{
+				( pVector->*pVector->removeCallback )( pObject );
+			}
+		}
 	}
 
 	template<typename... Args>
 	void removeNotification( Utils::BaseClass* pObject, const Notification<Args...>& notification )
 	{
-		Element element;
-		element.pIdentyfier = pObject;
-		element.tag = notification.tag;
-
-		m_changesStack.emplace_front( element );
-	}
-
-#ifdef DEBUG
-	bool isAnyRunning()
-	{
-		for( auto && element : m_semaphores )
+		if( notification.tag >= static_cast<int>( m_callbacks.size() )
+				|| m_callbacks[notification.tag] == nullptr )
 		{
-			if( element == true )
-			{
-				return true;
-			}
+			return;
 		}
 
-		return false;
+		auto& pVector = m_callbacks[notification.tag];
+		( pVector->*pVector->removeCallback )( pObject );
 	}
 
-	size_t getListenersCount( size_t tag )
-	{
-		if( tag >= m_callbacks.size() )
-		{
-			return 0;
-		}
-
-		return m_callbacks[tag].size();
-	}
-#endif
 	////////////////////////////////////////////////////////////////////////////////////////////////////
 private:
 
+	template <typename Type>
 	struct Element
 	{
-		int tag = NotificationConst::UNUSED_TAG;
-		Utils::BaseClass* pIdentyfier = nullptr;
-		void* pCallback = nullptr;
+		Element( const Type& callback ): callback( callback ) {}
+		bool toRemove = false;
+		Type callback;
+	};
+
+	struct VectorInterface
+	{
+		virtual ~VectorInterface() {}
+		typedef void ( VectorInterface::*RemoveForObjectCallback )( Utils::BaseClass* const );
+		RemoveForObjectCallback removeCallback = nullptr;
 
 #ifdef DEBUG
+		virtual void checkForDuplicates( Utils::BaseClass* pObject, void* pFunctionPointer ) = 0;
+#endif
+	};
+
+	template<typename Type>
+	struct VectorImpl : public VectorInterface
+	{
+		std::vector<Element<Type>> vector;
+
+		VectorImpl()
+		{
+			removeCallback = static_cast<RemoveForObjectCallback>( &VectorImpl<Type>::removeForObject );
+		}
+
+		virtual ~VectorImpl() {}
+
+		void removeForObject( Utils::BaseClass* const pObject )
+		{
+			for( auto && element : vector )
+			{
+				if( element.callback.getObject() == pObject )
+				{
+					element.toRemove = true;
+				}
+			}
+		}
+
 		/**
 		 * I know that comparing function pointers can cause UB but we do
 		 * it only in DEBUG for more safety
 		 */
-		const void* pFunctionPointer = nullptr;
+#ifdef DEBUG
+		virtual void checkForDuplicates( Utils::BaseClass* pObject, void* pFunctionPointer )
+		{
+			for( auto && element : vector )
+			{
+				if( element.toRemove == false
+						&& element.callback.getObject() == pObject
+						&& element.callback.getFunctionPointer() == pFunctionPointer )
+				{
+					assert( false && "You already add this notification. Please remove previous" );
+				}
+			}
+		}
 #endif
 
-
-
-		bool isSignedAsToDelete()const
-		{
-			return pCallback == nullptr;
-		}
 	};
 
-	/**
-	 * If Element::pCallback is nullptr it means that this is remove command :)
-	 * If tag != UNUSED_TAG it means that we want remove elements only for such tag
-	 * Else we remove all elements for Element::pIdentyfier
-	 */
-	std::deque<Element> m_changesStack;
-
-	std::vector<std::vector <Element>> m_callbacks;
-#ifdef DEBUG
-	std::vector<char> m_semaphores;
-#endif
-
-	void applyChanges()
-	{
-		//We wan't save this value because during this operation someone maybe will add/delete something new.
-		//This is simply stack of changes. We remove at end and add at front
-		int countOfChanges = static_cast<int>( m_changesStack.size() );
-
-		while( --countOfChanges > -1 )
-		{
-			assert( m_changesStack.empty() == false );
-			const Element& elementChanges = m_changesStack.back();
-
-			//It means we want delete it
-			if( elementChanges.isSignedAsToDelete() )
-			{
-				assert( elementChanges.pIdentyfier );
-
-				if( elementChanges.tag == NotificationConst::UNUSED_TAG )
-				{
-					removeForObject( elementChanges.pIdentyfier );
-				}
-				else
-				{
-					removeForTag( elementChanges.pIdentyfier, elementChanges.tag );
-				}
-			}
-			else
-			{
-				//If it isn't to delete we probably want to add
-				if( ( int )m_callbacks.size() <= elementChanges.tag )
-				{
-					m_callbacks.resize( elementChanges.tag + 64 );
-#ifdef DEBUG
-					m_semaphores.resize( m_callbacks.size() );
-#endif
-				}
-
-#ifdef DEBUG
-				assert( elementChanges.tag < ( int )m_semaphores.size() );
-				assert( m_semaphores[elementChanges.tag] == 0 );
-#endif
-
-				assert( elementChanges.tag < ( int )m_callbacks.size() );
-				m_callbacks[elementChanges.tag].emplace_back( elementChanges );
-			}
-
-			m_changesStack.pop_back();
-		}
-	}
-
-	void removeForObject( Utils::BaseClass* const pObject )
-	{
-#ifdef DEBUG
-		unsigned z = 0;
-#endif
-
-		for( auto && localVector : m_callbacks )
-		{
-#ifdef DEBUG
-			++z;
-#endif
-
-			for( int i = static_cast<int>( localVector.size() ) - 1 ; i > -1; --i )
-			{
-				Element& element = localVector[i];
-
-				if( pObject == element.pIdentyfier )
-				{
-#ifdef DEBUG
-					assert( z < m_semaphores.size() );
-					assert( m_semaphores[z] == 0 );
-#endif
-					free( element.pCallback );
-					element.pCallback = nullptr;
-					//order isn't important
-					std::swap( localVector[i], localVector.back() );
-					localVector.pop_back();
-				}
-			}
-		}
-	}
-
-	void removeForTag( Utils::BaseClass* const pObject, size_t tag )
-	{
-		if( tag >= m_callbacks.size() )
-		{
-			return;
-		}
-
-		assert( tag <  m_callbacks.size() );
-#ifdef DEBUG
-		assert( tag < m_semaphores.size() );
-		assert( m_semaphores[tag] == 0 );
-#endif
-		auto& localVector = m_callbacks[tag];
-
-		for( int i = static_cast<int>( localVector.size() ) - 1 ; i > -1; --i )
-		{
-			Element& element = localVector[i];
-
-			if( pObject == element.pIdentyfier )
-			{
-				free( element.pCallback );
-				element.pCallback = nullptr;
-				//order isn't important
-				std::swap( localVector[i], localVector.back() );
-				localVector.pop_back();
-			}
-		}
-	}
-
-#ifdef DEBUG
-	void test_isElementDuplicated( Element& element )
-	{
-		int balance = 0;//Because we add it already 1 line up
-
-		for( auto && elementLocal : m_changesStack )
-		{
-			if( elementLocal.pIdentyfier == element.pIdentyfier
-					&& ( elementLocal.tag == element.tag
-						 || elementLocal.tag == NotificationConst::UNUSED_TAG ) )
-			{
-				if( elementLocal.isSignedAsToDelete() )
-				{
-					--balance;
-
-					if( balance < 0 )
-					{
-						balance = 0;
-					}
-				}
-				else if( elementLocal.pFunctionPointer == element.pFunctionPointer )
-				{
-					++balance;
-				}
-			}
-		}
-
-		assert( balance <= 1 &&
-				"You already add this notification it is waiting on changes stack."
-				"You should remove your previous listener" );
-
-		//Always first element is a semaphore
-		if( element.tag >= ( int )m_callbacks.size()
-				|| m_callbacks[element.tag].empty() )
-		{
-			return;
-		}
-
-		const auto& localVector = m_callbacks[element.tag];
-
-		for( const Element& elementLocal : localVector )
-		{
-			if( elementLocal.pIdentyfier == element.pIdentyfier
-					&& elementLocal.tag == element.tag
-					&& elementLocal.pFunctionPointer == element.pFunctionPointer )
-			{
-				++balance;
-			}
-		}
-
-		assert( balance <= 1 &&
-				"You already add this notification it is waiting on changes stack."
-				"You should remove your previous listener" );
-	}
-#endif
+	std::vector <VectorInterface*> m_callbacks;
 };
 
 

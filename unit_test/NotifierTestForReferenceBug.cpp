@@ -27,6 +27,9 @@
  *
  * below we have test case for this behavior
  *
+ * Update 26.05.2014
+ * Now everything should work.
+ *
  */
 
 using namespace KoalaComponent;
@@ -65,13 +68,12 @@ struct TestClazzRef : Utils::BaseClass
 	Notifier* pNotifier = nullptr;
 };
 
-TEST( Notifier, DISABLED_TestOfNotificationBugWithReference )
+TEST( Notifier, TestOfNotificationBugWithReference )
 {
 	Notifier notifier;
 	TestClazzRef testClazz;
 	testClazz.pNotifier = &notifier;
 
-	//It should crash
 	notifier.addNotification( getNotificationTest1(), {&testClazz, &TestClazzRef::onDeliverNotification} );
 
 	notifier.notify( getNotificationTest1() );

@@ -46,9 +46,6 @@ public:
 
 	virtual ~ComponentNode()
 	{
-#ifdef DEBUG
-		assert( m_pNotifier.isAnyRunning() == false );
-#endif
 	}
 
 	/**
