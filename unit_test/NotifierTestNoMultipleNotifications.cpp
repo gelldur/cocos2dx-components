@@ -165,7 +165,7 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase10 )
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 }
 
-TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase11 )
+TEST( Notifier, DISABLED_TestOfNotificationNoMultipleNotificationsForSingleObjectCase11 )
 {
 	Notifier notifier;
 	TestClazz testClazz;
@@ -180,6 +180,7 @@ TEST( Notifier, TestOfNotificationNoMultipleNotificationsForSingleObjectCase11 )
 	notifier.removeAllForObject( &testClazz );
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 
+	//Line below should crash
 	notifier.addNotification( getNotificationTest1(), { &testClazz, &TestClazz::onDeliverNotification } );
 }
 

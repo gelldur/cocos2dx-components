@@ -77,6 +77,7 @@ void ComponentManager::removeAllComponents()
 	{
 		pComponent = m_components.back();
 
+		assert(m_componentTags.empty() == false);
 		m_nodeNotifier.notify( getNotificationOnBeforeRemoveFromComponentNode(), pComponent,
 							   m_componentTags.back() );
 		//We must remove all potential listeners because when we are using notifier from

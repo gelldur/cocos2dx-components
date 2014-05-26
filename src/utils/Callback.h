@@ -69,10 +69,7 @@ private:
 
 public:
 
-	Callback() :
-		m_pointerType( PointerType::Unknown )
-	{
-	}
+	Callback() = default;
 
 	template<typename ClassType, typename MethodType>
 	Callback( ClassType* pObject, const MethodType& method ) :
