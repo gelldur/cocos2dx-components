@@ -289,17 +289,16 @@ private:
 	Notifier& m_pNotifier;
 };
 
-TEST( Notifier, DISABLED_TestOfNotificationUseAfterRelease )
+TEST( Notifier, TestOfNotificationUseAfterRelease )
 {
 	Notifier notifier;
 
-	CCNode* pHolder = new CCNode();
-	pHolder->init();
-	notifier.addNotification( getNotificationTestUseAfterRelease(), Utils::makeCallback( pHolder,
-							  &CCNode::removeAllChildren ) );
-
 	TestClazzReleased* pReleasedNode = new TestClazzReleased( notifier );
 	pReleasedNode->init();
+
+	CCNode* pHolder = new CCNode();
+	pHolder->init();
+	notifier.addNotification( getNotificationTestUseAfterRelease(),{pHolder,&CCNode::removeAllChildren } );
 
 	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
 	EXPECT_EQ( 1u, pHolder->retainCount() );
@@ -314,11 +313,8 @@ TEST( Notifier, DISABLED_TestOfNotificationUseAfterRelease )
 	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
 	EXPECT_EQ( 1u, pHolder->retainCount() );
 
-	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
-	EXPECT_EQ( 1u, pHolder->retainCount() );
-
-	//Now when we notify we have problem. We have use after release.
-	//It should crash
+	//OLD: Now when we notify we have problem. We have use after release.
+	//NEW: Now everything should work because we mark second notification as toRemove so we simply skip it :)
 	notifier.notify( getNotificationTestUseAfterRelease() );
 
 	pHolder->release();

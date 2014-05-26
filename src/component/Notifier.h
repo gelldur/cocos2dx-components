@@ -53,13 +53,13 @@ public:
 
 		if(notification.tag >= (int)m_callbacks.size())
 		{
-			m_callbacks.resize(notification.tag + 256,nullptr);
+			m_callbacks.resize(notification.tag + 64,nullptr);
 		}
 
 		if(m_callbacks[notification.tag] == nullptr)
 		{
 			auto pVector = new VectorImpl<CallbackType>();
-			pVector->vector.reserve(256);
+			pVector->vector.reserve(64);
 
 			m_callbacks[notification.tag] = pVector;
 		}
@@ -76,7 +76,7 @@ public:
 	template<typename NotificationType, typename... Args>
 	void notify( const NotificationType& notification, Args&& ... params )
 	{
-		using CallbackType = Utils::Callback<void ( Args... )>;
+		using CallbackType = typename notification_traits<NotificationType>::callback_type;
 		assert( notification.tag > NotificationConst::UNUSED_TAG );
 
 		if( notification.tag >= static_cast<int>( m_callbacks.size() )
@@ -85,13 +85,19 @@ public:
 			return;
 		}
 
-		assert(dynamic_cast<VectorImpl<CallbackType>*>(m_callbacks[notification.tag]));
+		assert(dynamic_cast<VectorImpl<CallbackType>*>(m_callbacks[notification.tag]) != nullptr);
 		auto pVector = static_cast< VectorImpl<CallbackType>* >(m_callbacks[notification.tag]);
 		for( int i = static_cast<int>(pVector->vector.size()) - 1;i > -1;--i )
 		{
-			auto&& element = pVector->vector[i];
+			auto& element = pVector->vector[i];
+
 			if(element.toRemove == false)
 			{
+				CCAssert( element.callback.isCallable(), "You don't set callback?" );
+				CCAssert( element.callback.getObject()->retainCount() > 0,
+							"Probably you release object during notification or you simply didn't "
+							"unregister your previous object. Look for this notification usage" );
+
 				element.callback.call(std::forward<Args> ( params )...);
 			}
 			else
@@ -122,7 +128,7 @@ public:
 			return;
 		}
 
-		auto&& pVector = m_callbacks[notification.tag];
+		auto& pVector = m_callbacks[notification.tag];
 		(pVector->*pVector->removeCallback)(pObject);
 	}
 
