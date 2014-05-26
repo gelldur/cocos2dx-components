@@ -62,204 +62,131 @@ struct TestClazz : Utils::BaseClass
 		deliveredCount += value;
 	}
 };
-//
-//TEST( Notifier, TestOfNotification )
-//{
-//	Notifier notifier;
-//	TestClazz testClazz;
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//
-//	EXPECT_EQ( 0, testClazz.deliveredCount );
-//
-//	notifier.notify( getNotificationTest1() );
-//
-//	EXPECT_EQ( 1, testClazz.deliveredCount );
-//
-//	notifier.notify( getNotificationTest1() );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 3, testClazz.deliveredCount );
-//
-//	notifier.removeAllForObject( &testClazz );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 3, testClazz.deliveredCount );
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//	EXPECT_EQ( 3, testClazz.deliveredCount );
-//
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 4, testClazz.deliveredCount );
-//
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.removeNotification( &testClazz, getNotificationTest1() );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 4, testClazz.deliveredCount );
-//
-//
-//	//////////////////////////////////////////////////////////////////////////////////////
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//	notifier.addNotification( getNotificationTest2(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//
-//	//Here listeners are not still added because before notifications we apply changes
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//
-//	notifier.notify( getNotificationTest1() );
-//
-//	//Changes should be applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	EXPECT_EQ( 5, testClazz.deliveredCount );
-//
-//	notifier.notify( getNotificationTest2() );
-//	EXPECT_EQ( 6, testClazz.deliveredCount );
-//
-//	notifier.removeNotification( &testClazz, getNotificationTest1() );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 6, testClazz.deliveredCount );
-//
-//	notifier.notify( getNotificationTest2() );
-//	EXPECT_EQ( 7, testClazz.deliveredCount );
-//
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.notify( getNotificationTest1() );
-//
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	EXPECT_EQ( 8, testClazz.deliveredCount );
-//
-//	notifier.removeAllForObject( &testClazz );
-//
-//	//Changes still not applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 8, testClazz.deliveredCount );
-//
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//}
-//
-//TEST( Notifier, TestOfNotificationChangesStack )
-//{
-//	Notifier notifier;
-//	TestClazz testClazz;
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//	notifier.addNotification( getNotificationTest2(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	EXPECT_EQ( 0, testClazz.deliveredCount );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 1, testClazz.deliveredCount );
-//
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.removeAllForObject( &testClazz );
-//
-//	//Changes still not applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.removeAllForObject( &testClazz );
-//
-//	//Changes still not applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.notify( getNotificationTest3(), 0x01 );
-//
-//	//changes should be applied
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//}
-//
-//TEST( Notifier, DISABLED_TestOfNotificationChangesStackDoubleCommands )
-//{
-//	Notifier notifier;
-//	TestClazz testClazz;
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//	notifier.addNotification( getNotificationTest2(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	EXPECT_EQ( 0, testClazz.deliveredCount );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 1, testClazz.deliveredCount );
-//
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.removeAllForObject( &testClazz );
-//
-//	//Changes still not applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.removeAllForObject( &testClazz );
-//
-//	//Changes still not applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//	notifier.addNotification( getNotificationTest2(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//
-//	//Changes still not applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	notifier.notify( getNotificationTest3(), 0x01 );
-//
-//	//changes should be applied
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//
-//	EXPECT_EQ( 1, testClazz.deliveredCount );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 2, testClazz.deliveredCount );
-//
-//	notifier.addNotification( getNotificationTest1(),
-//							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
-//	//Now we have double notification
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 4, testClazz.deliveredCount );
-//	EXPECT_EQ( 2u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//
-//	notifier.removeNotification( &testClazz, getNotificationTest1() );
-//	notifier.notify( getNotificationTest1() );
-//	EXPECT_EQ( 4, testClazz.deliveredCount );
-//	EXPECT_EQ( 0u, notifier.getListenersCount( getNotificationTest1().tag ) );
-//	EXPECT_EQ( 1u, notifier.getListenersCount( getNotificationTest2().tag ) );
-//}
+
+TEST( Notifier, TestOfNotification )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+
+	EXPECT_EQ( 0, testClazz.deliveredCount );
+
+	notifier.notify( getNotificationTest1() );
+
+	EXPECT_EQ( 1, testClazz.deliveredCount );
+
+	notifier.notify( getNotificationTest1() );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 3, testClazz.deliveredCount );
+
+	notifier.removeAllForObject( &testClazz );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 3, testClazz.deliveredCount );
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	EXPECT_EQ( 3, testClazz.deliveredCount );
+
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 4, testClazz.deliveredCount );
+
+	notifier.removeNotification( &testClazz, getNotificationTest1() );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 4, testClazz.deliveredCount );
+
+
+	//////////////////////////////////////////////////////////////////////////////////////
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	notifier.addNotification( getNotificationTest2(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+
+	notifier.notify( getNotificationTest1() );
+
+	EXPECT_EQ( 5, testClazz.deliveredCount );
+
+	notifier.notify( getNotificationTest2() );
+	EXPECT_EQ( 6, testClazz.deliveredCount );
+
+	notifier.removeNotification( &testClazz, getNotificationTest1() );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 6, testClazz.deliveredCount );
+
+	notifier.notify( getNotificationTest2() );
+	EXPECT_EQ( 7, testClazz.deliveredCount );
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	notifier.notify( getNotificationTest1() );
+
+	EXPECT_EQ( 8, testClazz.deliveredCount );
+
+	notifier.removeAllForObject( &testClazz );
+
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 8, testClazz.deliveredCount );
+}
+
+TEST( Notifier, TestOfNotificationChangesStack )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	notifier.addNotification( getNotificationTest2(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+
+	EXPECT_EQ( 0, testClazz.deliveredCount );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 1, testClazz.deliveredCount );
+
+	notifier.removeAllForObject( &testClazz );
+	notifier.removeAllForObject( &testClazz );
+	notifier.notify( getNotificationTest3(), 0x01 );
+}
+
+TEST( Notifier, DISABLED_TestOfNotificationChangesStackDoubleCommands )
+{
+	Notifier notifier;
+	TestClazz testClazz;
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	notifier.addNotification( getNotificationTest2(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+
+	EXPECT_EQ( 0, testClazz.deliveredCount );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 1, testClazz.deliveredCount );
+
+	notifier.removeAllForObject( &testClazz );
+	notifier.removeAllForObject( &testClazz );
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	notifier.addNotification( getNotificationTest2(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+
+	notifier.notify( getNotificationTest3(), 0x01 );
+
+	EXPECT_EQ( 1, testClazz.deliveredCount );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 2, testClazz.deliveredCount );
+
+	notifier.addNotification( getNotificationTest1(),
+							  Utils::makeCallback( &testClazz, &TestClazz::onDeliverNotification ) );
+	//Now we have double notification
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 4, testClazz.deliveredCount );
+
+	notifier.removeNotification( &testClazz, getNotificationTest1() );
+	notifier.notify( getNotificationTest1() );
+	EXPECT_EQ( 4, testClazz.deliveredCount );
+}
 
 
 MAKE_NOTIFICATION( TestUseAfterRelease );
