@@ -225,7 +225,7 @@ TEST( Notifier, TestOfNotificationUseAfterRelease )
 
 	CCNode* pHolder = new CCNode();
 	pHolder->init();
-	notifier.addNotification( getNotificationTestUseAfterRelease(),{pHolder,&CCNode::removeAllChildren } );
+	notifier.addNotification( getNotificationTestUseAfterRelease(), {pHolder, &CCNode::removeAllChildren } );
 
 	EXPECT_EQ( 1u, pReleasedNode->retainCount() );
 	EXPECT_EQ( 1u, pHolder->retainCount() );

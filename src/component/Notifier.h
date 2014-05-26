@@ -26,7 +26,7 @@ public:
 
 	virtual ~Notifier()
 	{
-		for( auto&& pVector : m_callbacks )
+		for( auto && pVector : m_callbacks )
 		{
 			delete pVector;
 		}
@@ -51,26 +51,26 @@ public:
 		CCAssert( callback.isCallable(), "Callback isn't set" );
 		CCAssert( callback.getObject(), "Notifier is't ready for lambdas" );
 
-		if(notification.tag >= (int)m_callbacks.size())
+		if( notification.tag >= ( int )m_callbacks.size() )
 		{
-			m_callbacks.resize(notification.tag + 64,nullptr);
+			m_callbacks.resize( notification.tag + 64, nullptr );
 		}
 
-		if(m_callbacks[notification.tag] == nullptr)
+		if( m_callbacks[notification.tag] == nullptr )
 		{
 			auto pVector = new VectorImpl<CallbackType>();
-			pVector->vector.reserve(64);
+			pVector->vector.reserve( 64 );
 
 			m_callbacks[notification.tag] = pVector;
 		}
 
-		auto pVector = static_cast< VectorImpl<CallbackType>* >(m_callbacks[notification.tag]);
+		auto pVector = static_cast<VectorImpl<CallbackType>*>( m_callbacks[notification.tag] );
 
 #ifdef DEBUG
-		pVector->checkForDuplicates(callback.getObject(),callback.getFunctionPointer());
+		pVector->checkForDuplicates( callback.getObject(), callback.getFunctionPointer() );
 #endif
 
-		pVector->vector.emplace_back(Element<CallbackType>(callback) );
+		pVector->vector.emplace_back( Element<CallbackType>( callback ) );
 	}
 
 	template<typename NotificationType, typename... Args>
@@ -85,24 +85,25 @@ public:
 			return;
 		}
 
-		assert(dynamic_cast<VectorImpl<CallbackType>*>(m_callbacks[notification.tag]) != nullptr);
-		auto pVector = static_cast< VectorImpl<CallbackType>* >(m_callbacks[notification.tag]);
-		for( int i = static_cast<int>(pVector->vector.size()) - 1;i > -1;--i )
+		assert( dynamic_cast<VectorImpl<CallbackType>*>( m_callbacks[notification.tag] ) != nullptr );
+		auto pVector = static_cast<VectorImpl<CallbackType>*>( m_callbacks[notification.tag] );
+
+		for( int i = static_cast<int>( pVector->vector.size() ) - 1; i > -1; --i )
 		{
 			auto& element = pVector->vector[i];
 
-			if(element.toRemove == false)
+			if( element.toRemove == false )
 			{
 				CCAssert( element.callback.isCallable(), "You don't set callback?" );
 				CCAssert( element.callback.getObject()->retainCount() > 0,
-							"Probably you release object during notification or you simply didn't "
-							"unregister your previous object. Look for this notification usage" );
+						  "Probably you release object during notification or you simply didn't "
+						  "unregister your previous object. Look for this notification usage" );
 
-				element.callback.call(std::forward<Args> ( params )...);
+				element.callback.call( std::forward<Args> ( params )... );
 			}
 			else
 			{
-				std::swap(pVector->vector[i],pVector->vector.back());
+				std::swap( pVector->vector[i], pVector->vector.back() );
 				pVector->vector.pop_back();
 			}
 		}
@@ -110,11 +111,11 @@ public:
 
 	void removeAllForObject( Utils::BaseClass* const pObject )
 	{
-		for(auto&& pVector : m_callbacks)
+		for( auto && pVector : m_callbacks )
 		{
-			if(pVector != nullptr)
+			if( pVector != nullptr )
 			{
-				(pVector->*pVector->removeCallback)(pObject);
+				( pVector->*pVector->removeCallback )( pObject );
 			}
 		}
 	}
@@ -129,7 +130,7 @@ public:
 		}
 
 		auto& pVector = m_callbacks[notification.tag];
-		(pVector->*pVector->removeCallback)(pObject);
+		( pVector->*pVector->removeCallback )( pObject );
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -138,39 +139,39 @@ private:
 	template <typename Type>
 	struct Element
 	{
-		Element(const Type& callback ):callback(callback){}
+		Element( const Type& callback ): callback( callback ) {}
 		bool toRemove = false;
 		Type callback;
 	};
 
 	struct VectorInterface
 	{
-		virtual ~VectorInterface(){}
-		typedef void (VectorInterface::*RemoveForObjectCallback)(Utils::BaseClass* const);
+		virtual ~VectorInterface() {}
+		typedef void ( VectorInterface::*RemoveForObjectCallback )( Utils::BaseClass* const );
 		RemoveForObjectCallback removeCallback = nullptr;
 
 #ifdef DEBUG
-		virtual void checkForDuplicates(Utils::BaseClass* pObject,void* pFunctionPointer) = 0;
+		virtual void checkForDuplicates( Utils::BaseClass* pObject, void* pFunctionPointer ) = 0;
 #endif
 	};
 
 	template<typename Type>
 	struct VectorImpl : public VectorInterface
 	{
-		std::vector< Element<Type> > vector;
+		std::vector<Element<Type>> vector;
 
 		VectorImpl()
 		{
-			removeCallback = static_cast<RemoveForObjectCallback>(&VectorImpl<Type>::removeForObject);
+			removeCallback = static_cast<RemoveForObjectCallback>( &VectorImpl<Type>::removeForObject );
 		}
 
-		virtual ~VectorImpl(){}
+		virtual ~VectorImpl() {}
 
-		void removeForObject(Utils::BaseClass* const pObject)
+		void removeForObject( Utils::BaseClass* const pObject )
 		{
-			for(auto&& element : vector)
+			for( auto && element : vector )
 			{
-				if(element.callback.getObject() == pObject)
+				if( element.callback.getObject() == pObject )
 				{
 					element.toRemove = true;
 				}
@@ -182,15 +183,15 @@ private:
 		 * it only in DEBUG for more safety
 		 */
 #ifdef DEBUG
-		virtual void checkForDuplicates(Utils::BaseClass* pObject,void* pFunctionPointer)
+		virtual void checkForDuplicates( Utils::BaseClass* pObject, void* pFunctionPointer )
 		{
-			for(auto&& element : vector)
+			for( auto && element : vector )
 			{
-				if(element.toRemove == false
+				if( element.toRemove == false
 						&& element.callback.getObject() == pObject
-						&& element.callback.getFunctionPointer() == pFunctionPointer)
+						&& element.callback.getFunctionPointer() == pFunctionPointer )
 				{
-					assert(false && "You already add this notification. Please remove previous");
+					assert( false && "You already add this notification. Please remove previous" );
 				}
 			}
 		}
@@ -198,7 +199,7 @@ private:
 
 	};
 
-	std::vector < VectorInterface* > m_callbacks;
+	std::vector <VectorInterface*> m_callbacks;
 };
 
 
