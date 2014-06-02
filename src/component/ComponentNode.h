@@ -44,6 +44,11 @@ public:
 		return pRet = nullptr;
 	}
 
+	ComponentNode() :
+		m_manager( this, m_pNotifier )
+	{
+	}
+
 	virtual ~ComponentNode()
 	{
 	}
@@ -84,12 +89,6 @@ public:
 	inline Type* getComponent()
 	{
 		return m_manager.getComponent<Type>();
-	}
-
-protected:
-	ComponentNode() :
-		m_manager( this, m_pNotifier )
-	{
 	}
 
 private:
