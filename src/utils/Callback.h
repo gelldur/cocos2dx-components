@@ -154,7 +154,7 @@ public:
 	{
 		static_assert(
 			std::is_convertible<FunctionType, std::function<ReturnType( Args... )>>::value,
-			"Parameter must be either function (static method) pointer or non-capturing lambda" );
+			"Parameter must be either function (static method) pointer or non-capturing lambda. Or simply your arguments doesn't match." );
 
 		m_pointerType = PointerType::Function;
 		MethodPointer methodPointer;
