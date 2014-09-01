@@ -20,21 +20,24 @@ NotificationQueue::~NotificationQueue()
 }
 
 
-void NotificationQueue::queueNotification( Notifier* pNotifier, Notification<const std::string&> notification )
+void NotificationQueue::queueNotification( Notifier* pNotifier,
+		Notification<const std::string&> notification )
 {
-	queueNotification(pNotifier,notification,"",1.F/60.F);
+	queueNotification( pNotifier, notification, "", 1.F / 60.F );
 }
 
-void NotificationQueue::queueNotification( Notifier* pNotifier, Notification<const std::string&> notification ,
+void NotificationQueue::queueNotification( Notifier* pNotifier,
+		Notification<const std::string&> notification ,
 		float time )
 {
-	queueNotification(pNotifier,notification,"",time);
+	queueNotification( pNotifier, notification, "", time );
 }
 
-void NotificationQueue::queueNotification( Notifier* pNotifier, Notification<const std::string&> notification ,
-		const std::string& data,float time )
+void NotificationQueue::queueNotification( Notifier* pNotifier,
+		Notification<const std::string&> notification ,
+		const std::string& data, float time )
 {
-	m_notifications.emplace_back( pNotifier, notification,data );
+	m_notifications.emplace_back( pNotifier, notification, data );
 	m_times.emplace_back( time );
 
 	if( m_isScheduled == false )
@@ -57,7 +60,7 @@ void NotificationQueue::onUpdate( float dt )
 			m_times.pop_back();
 
 			auto&& element = m_notifications[i];
-			element.pNotifier->notify( element.notification,element.data );
+			element.pNotifier->notify( element.notification, element.data );
 
 			std::swap( m_notifications[i], m_notifications.back() );
 			m_notifications.pop_back();

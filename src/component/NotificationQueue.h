@@ -18,17 +18,18 @@ namespace KoalaComponent
 
 struct QueuedNotification
 {
-	QueuedNotification( Notifier* pNotifier, Notification<const std::string&> notification,const std::string& data ):
+	QueuedNotification( Notifier* pNotifier, Notification<const std::string&> notification,
+						const std::string& data ):
 		pNotifier( pNotifier )
 		, notification( notification )
-		,data(data)
+		, data( data )
 	{
 	}
 
 	QueuedNotification( QueuedNotification&& queueNotification ) :
 		pNotifier( queueNotification.pNotifier )
 		, notification( queueNotification.notification )
-		,data(queueNotification.data)
+		, data( queueNotification.data )
 	{
 	}
 
@@ -57,8 +58,10 @@ public:
 	 * @param time default next frame
 	 */
 	void queueNotification( Notifier* pNotifier, Notification<const std::string&> notification );
-	void queueNotification( Notifier* pNotifier, Notification<const std::string&> notification, float time );
-	void queueNotification( Notifier* pNotifier, Notification<const std::string&> notification,const std::string& data, float time);
+	void queueNotification( Notifier* pNotifier, Notification<const std::string&> notification,
+							float time );
+	void queueNotification( Notifier* pNotifier, Notification<const std::string&> notification,
+							const std::string& data, float time );
 
 private:
 	int m_isScheduled = false;
